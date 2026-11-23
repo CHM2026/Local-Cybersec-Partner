@@ -43,7 +43,8 @@ def write_sums(paths, output):
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    description = (__doc__ or "Empreintes SHA-256").splitlines()[0]
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument("files", nargs="+", help="Fichiers à vérifier")
     parser.add_argument(
         "--output", default="dist/SHA256SUMS.txt",

@@ -230,5 +230,5 @@ pyproject.toml       Metadata, entry point, pytest configuration
 ## License and release
 
 Distributed under the [MIT license](LICENSE). The version history is in
-[CHANGELOG.md](CHANGELOG.md) and the procedure for publishing the `v1.0.0` tag
-is in [docs/RELEASE.md](docs/RELEASE.md).
+[CHANGELOG.md](CHANGELOG.md) and the procedure for publishing tags (`v1.0.0`,
+`v1.1.0`) is in [docs/RELEASE.md](docs/RELEASE.md).

@@ -229,5 +229,5 @@ pyproject.toml       البيانات الوصفية، نقطة الدخول، �
 ## الترخيص والنشر
 
 يُوزّع هذا المشروع بموجب [ترخيص MIT](LICENSE). سجل الإصدارات في
-[CHANGELOG.md](CHANGELOG.md)، وإجراء نشر الوسم `v1.0.0` في
+[CHANGELOG.md](CHANGELOG.md)، وإجراء نشر الوسوم (`v1.0.0` و`v1.1.0`) في
 [docs/RELEASE.md](docs/RELEASE.md).

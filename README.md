@@ -232,5 +232,5 @@ pyproject.toml       Métadonnées, script d'entrée, configuration pytest
 ## Licence et publication
 
 Distribué sous licence [MIT](LICENSE). Le journal des versions est dans
-[CHANGELOG.md](CHANGELOG.md) et la procédure de diffusion du tag `v1.0.0` dans
-[docs/RELEASE.md](docs/RELEASE.md).
+[CHANGELOG.md](CHANGELOG.md) et la procédure de diffusion des tags (`v1.0.0`,
+`v1.1.0`) dans [docs/RELEASE.md](docs/RELEASE.md).

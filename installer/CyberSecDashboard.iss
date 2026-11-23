@@ -1,7 +1,7 @@
 ; Installateur Windows de CyberSec Dashboard (Inno Setup 6).
 ;
 ; Compilation locale, depuis la racine du dépôt :
-;   iscc /DAppVersion=1.0.0 installer\CyberSecDashboard.iss
+;   iscc /DAppVersion=1.1.0 installer\CyberSecDashboard.iss
 ;
 ; Le dossier build\win\dist\CyberSecDashboard doit exister : il est produit par
 ;   py -3.15 tools/build_windows.py --keep-work
@@ -9,11 +9,11 @@
 ; registre système, pas un settings.ini local.
 
 #ifndef AppVersion
-  #define AppVersion "1.0.0"
+  #define AppVersion "1.1.0"
 #endif
 
 [Setup]
-AppId={{A3C88A48-5F6A-4F5D-9EEC-7FD431389DBF}
+AppId={{A3C88A48-5F6A-4F5D-9EEC-7FD431389DBF}}
 AppName=CyberSec Dashboard
 AppVersion={#AppVersion}
 AppPublisher=CHM2026

@@ -1,6 +1,7 @@
 # Procédure de publication — v1.0.0
 
-Ce runbook prépare la diffusion de la version **1.0.0** de Local-Cybersec-Partner.
+Ce runbook prépare la diffusion de la version **1.0.0** de Local-Cybersec-Partner
+(la procédure spécifique à **v1.1.0** est résumée en section 7).
 Il ne crée **aucun tag automatiquement** : chaque commande est à exécuter
 volontairement, dans l’ordre indiqué.
 
@@ -215,3 +216,20 @@ dans `CHANGELOG.md`, puis suivez à nouveau la section 4.
 Les anciennes versions des captures contenaient le nom réel de la machine. Elles
 restent présentes dans l’historique Git (décision : ne pas réécrire l’historique).
 Le tag `v1.0.0` pointe, lui, sur l’arbre propre avec les six captures anonymisées.
+
+## 7. Publication de v1.1.0
+
+La procédure générale ci-dessus reste valable ; seules les valeurs changent :
+
+1. Vérifier `pyproject.toml` (`version = "1.1.0"`) et `src/constants.py`
+   (`APP_VERSION = "1.1.0"`), puis `pytest` (**51 tests**) et la CI sur `main`.
+2. Publier le commit, créer le tag annoté `v1.1.0` et le pousser.
+3. Créer la Release GitHub `v1.1.0` : titre `v1.1.0 — CyberSec Dashboard`,
+   description = section `[1.1.0]` du `CHANGELOG.md`, label **None**.
+4. Les workflows **`Release wheel`** et **`Build Windows executables`** se
+   déclenchent automatiquement. Vérifier dans **Assets** :
+   `local_cybersec_partner-1.1.0-py3-none-any.whl`,
+   `CyberSecDashboard-1.1.0-portable.zip`,
+   `CyberSecDashboard-1.1.0-setup.exe` et `SHA256SUMS.txt`.
+5. Ne jamais déplacer `v1.0.0` : les correctifs ultérieurs iront dans `v1.1.1`.
+

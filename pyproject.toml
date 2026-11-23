@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "local-cybersec-partner"
-version = "1.0.0"
+version = "1.1.0"
 description = "Tableau de bord local d'outils de cybersecurite (PySide6)"
 requires-python = ">=3.15"
 dependencies = [

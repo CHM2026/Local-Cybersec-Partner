@@ -6,6 +6,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 
 ## [Non publié]
 
+## [1.1.0] - 2026-11-23
+
+Version mineure : mise à jour intégrée et diffusée sous forme d'exécutables
+Windows (portable ZIP et installateur), en plus du wheel Python existant.
+
 ### Ajouté
 - **Système de mise à jour** intégré : page dédiée dans les trois langues,
   contrôle silencieux une fois par jour au démarrage (désactivable), notes de
@@ -48,6 +53,17 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   pour l’utilisateur final (commande créée par pip, nom du paquet pour
   désinstaller, correctif du `PATH` Windows et solution de repli
   `py -3.15 -m main`) ; runbook et changelog alignés.
+
+### Installation rapide
+
+Sur Windows, téléchargez `CyberSecDashboard-1.1.0-portable.zip` ou
+`CyberSecDashboard-1.1.0-setup.exe` depuis la Release `v1.1.0` (aucun Python
+requis). Pour le paquet Python :
+
+```bash
+pip install "git+https://github.com/CHM2026/Local-Cybersec-Partner.git@v1.1.0"
+cybersec-dashboard
+```
 
 ## [1.0.0] - 2026-11-23
 

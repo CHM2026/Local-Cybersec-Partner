@@ -30,7 +30,8 @@ def project_version():
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    description = (__doc__ or "Construction Windows").splitlines()[0]
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--version",
         default=project_version(),

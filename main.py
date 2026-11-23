@@ -32,7 +32,7 @@ from src.runtime import (
     executable_dir, setting_flag,
 )
 from src.updater import (
-    RELEASES_PAGE, UpdateError, asset_for_mode, checksum_for_asset,
+    RELEASES_PAGE, ReleaseInfo, UpdateError, asset_for_mode, checksum_for_asset,
     download_asset, downloads_dir, extract_portable_archive,
     fetch_latest_release, is_newer, pip_install_command, temp_dir,
 )
@@ -317,11 +317,11 @@ class CyberSecApp(QMainWindow):
         self._clock_labels      = []     # horloges affichées sur chaque page
         # — Mises à jour —
         self._update_mode       = detect_distribution()
-        self._release           = None   # dernière Release compatible trouvée
+        self._release: ReleaseInfo | None = None  # dernière Release compatible
         self._update_available  = False
-        self._update_status     = ("", "")  # (kind, détail) pour le rendu i18n
-        self._update_worker     = None
-        self._download_worker   = None
+        self._update_status: tuple[str, str] = ("", "")  # (kind, détail) i18n
+        self._update_worker: UpdateCheckWorker | None = None
+        self._download_worker: UpdateDownloadWorker | None = None
 
         self._settings = app_settings()
         saved_language = self._settings.value("language", "fr")
@@ -1955,17 +1955,20 @@ class CyberSecApp(QMainWindow):
             nav.setText(f"{tr('nav.update')}  •")
 
     def _open_release_page(self):
-        url = self._release.page_url if self._release is not None else RELEASES_PAGE
+        release = self._release
+        url = release.page_url if release is not None else RELEASES_PAGE
         QDesktopServices.openUrl(QUrl(url))
 
     def _copy_pip_command(self):
-        if self._release is None:
+        release = self._release
+        if release is None:
             return
-        self._set_clipboard(pip_install_command(self._release))
+        self._set_clipboard(pip_install_command(release))
         QMessageBox.information(self, tr("common.info"), tr("msg.result_copied"))
 
     def _download_update(self):
-        if self._release is None:
+        release = self._release
+        if release is None:
             return
         if self._download_worker is not None and self._download_worker.isRunning():
             return
@@ -1973,7 +1976,7 @@ class CyberSecApp(QMainWindow):
             self._open_release_page()
             return
 
-        asset = asset_for_mode(self._release, self._update_mode)
+        asset = asset_for_mode(release, self._update_mode)
         if asset is None:
             QMessageBox.warning(self, tr("common.warning"), tr("update.error.asset"))
             return
@@ -1983,7 +1986,7 @@ class CyberSecApp(QMainWindow):
             destination = temp_dir() / asset.name
 
         self._download_worker = UpdateDownloadWorker(
-            self._release, self._update_mode, destination)
+            release, self._update_mode, destination)
         self._download_worker.progress.connect(self._on_download_progress)
         self._download_worker.finished_download.connect(self._on_download_done)
         self.update_progress.setRange(0, 100)
@@ -1999,11 +2002,14 @@ class CyberSecApp(QMainWindow):
         self._set_update_status("downloading", str(percent))
 
     def _on_download_done(self, path, error, state):
+        release = self._release
         self.update_progress.setVisible(False)
-        self.update_download_btn.setEnabled(self._release is not None)
+        self.update_download_btn.setEnabled(release is not None)
         if error:
             self._set_update_status("error", error)
             QMessageBox.critical(self, tr("common.error"), error)
+            return
+        if release is None:
             return
 
         filename = Path(path).name
@@ -2014,7 +2020,7 @@ class CyberSecApp(QMainWindow):
                          file=filename, checksum=checksum_text)
 
         if self._update_mode == "portable":
-            target = executable_dir().parent / f"CyberSecDashboard-v{self._release.version}"
+            target = executable_dir().parent / f"CyberSecDashboard-v{release.version}"
             folder, exe = extract_portable_archive(path, target)
             shown = str(exe) if exe is not None else str(folder)
             msg = QMessageBox(self)

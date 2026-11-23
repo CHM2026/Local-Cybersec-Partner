@@ -11,6 +11,7 @@ from PySide6.QtCore import QSettings
 
 import src.runtime as runtime
 import src.updater as updater
+from src.constants import APP_VERSION
 from src.runtime import (
     app_settings, detect_distribution, setting_flag, settings_path,
 )
@@ -86,8 +87,12 @@ def test_version_comparison():
 
 def test_asset_selection_per_mode():
     release = make_release()
-    assert asset_for_mode(release, "portable").name.endswith("portable.zip")
-    assert asset_for_mode(release, "installer").name.endswith("setup.exe")
+    portable = asset_for_mode(release, "portable")
+    setup = asset_for_mode(release, "installer")
+    assert portable is not None
+    assert setup is not None
+    assert portable.name.endswith("portable.zip")
+    assert setup.name.endswith("setup.exe")
     assert asset_for_mode(release, "pip") is None
     assert "v1.0.1" in pip_install_command(release)
 
@@ -199,7 +204,7 @@ def test_update_page_exists_and_lists_current_version(window):
     assert "update" in window.pages
     assert "update" in window.nav_buttons
     labels = [lbl.text() for lbl in window.sidebar.findChildren(type(window._label("")))]
-    assert any("v1.0.0" in text for text in labels)
+    assert any(f"v{APP_VERSION}" in text for text in labels)
     assert not window.update_download_btn.isEnabled()
 
 
