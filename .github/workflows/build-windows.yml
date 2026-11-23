@@ -1,0 +1,94 @@
+# Construit les exécutables Windows et les joint à la Release GitHub.
+# PyInstaller ne cross-compile pas : ce job tourne donc sur windows-latest.
+# Déclenché à la publication d'une Release, ou manuellement pour un tag existant.
+
+name: Build Windows executables
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de la Release à compléter (ex : v1.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Portable ZIP + installateur Inno Setup
+    runs-on: windows-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.event.release.tag_name || github.ref }}
+
+      - name: Configurer Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.15"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements.dev.txt
+            pyproject.toml
+
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -r requirements.dev.txt
+
+      - name: Vérifier la version du tag
+        shell: pwsh
+        run: |
+          $version = python -c "import tomllib,pathlib;print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])"
+          $tag = "${{ inputs.tag || github.event.release.tag_name }}"
+          if ($tag -and $tag -ne "v$version") {
+            throw "Le tag $tag ne correspond pas à la version $version du dépôt."
+          }
+          "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Construire l'archive portable
+        run: python tools/build_windows.py --keep-work
+
+      - name: Installer Inno Setup 6
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            $iscc = (Get-Command iscc -ErrorAction Stop).Source
+          }
+          "ISCC_PATH=$iscc" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Compiler l'installateur
+        shell: pwsh
+        run: |
+          & "$env:ISCC_PATH" /DAppVersion=$env:APP_VERSION installer\CyberSecDashboard.iss
+          if ($LASTEXITCODE -ne 0) { throw "Échec de la compilation Inno Setup." }
+
+      - name: Générer SHA256SUMS.txt
+        shell: pwsh
+        run: |
+          $artefacts = @(Get-ChildItem dist\*.zip) + @(Get-ChildItem dist\*setup.exe)
+          if ($artefacts.Count -ne 2) {
+            throw "Attendu 1 ZIP portable et 1 setup.exe, trouvé $($artefacts.Count) fichier(s)."
+          }
+          python tools/write_sha256sums.py ($artefacts.FullName)
+
+      - name: Joindre les artefacts à la Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          if (-not $env:RELEASE_TAG) { throw "Aucun tag de Release fourni." }
+          $assets = @(Get-ChildItem dist\*.zip) +
+                    @(Get-ChildItem dist\*setup.exe) +
+                    @(Get-ChildItem dist\SHA256SUMS.txt)
+          gh release upload $env:RELEASE_TAG ($assets.FullName) --clobber

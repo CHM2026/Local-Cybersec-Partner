@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Release](https://img.shields.io/github/v/release/CHM2026/Local-Cybersec-Partner.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
 [![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
@@ -42,6 +42,20 @@ python3 -m venv .venv
 On Windows, if `python` points to an older version, use `py -3.15` instead.
 
 For development (tests included), replace `requirements.txt` with `requirements.dev.txt` in the install command above.
+
+### Windows: portable or installer (no Python needed)
+
+From the [Releases](https://github.com/CHM2026/Local-Cybersec-Partner/releases)
+page, download one of the Windows artifacts:
+
+- `CyberSecDashboard-<version>-portable.zip`: extract it, then run
+  `CyberSecDashboard.exe`. The `portable.txt` marker stores preferences in
+  `settings.ini` next to the executable (nothing in the registry);
+- `CyberSecDashboard-<version>-setup.exe`: regular installation with a Start
+  menu shortcut; uninstall from *Settings → Apps*.
+
+Python is not required for either format. The `SHA256SUMS.txt` file attached to
+the release lets you verify download integrity.
 
 ## Running
 
@@ -108,6 +122,7 @@ Your language and theme preferences remain saved.
 | 🔍 Port scanner | TCP Connect scan of a port range (resolved host and validated timeout) |
 | ⚙️ Base64 | Strict encoding/decoding, with hexadecimal display for binary data |
 | 🌐 Network | Local information, asynchronous DNS resolution, ping |
+| 🆕 Update | GitHub Releases lookup, guided download and SHA-256 verification |
 | 📋 Log | Action history, clearing and text export |
 
 ## Multilingual (FR / EN / AR)
@@ -130,6 +145,23 @@ Two palettes are available from the **🎨 Theme** selector in the sidebar:
 
 The choice is saved (`QSettings`) and restored on launch. The **📸 Screenshot** button saves the current render as PNG.
 
+## Update
+
+The **🆕 Update** page queries the public GitHub API once a day at startup
+(disable it with the checkbox), or on demand with **Check now**. It shows the
+installed version, the available version and the release notes.
+
+**Download update** picks the artifact matching the current mode:
+
+- **pip** install: the `py -3.15 -m pip install --upgrade …` command is shown and can be copied;
+- **portable**: the ZIP archive is extracted into a neighbouring `CyberSecDashboard-vX.Y.Z` folder;
+- **Windows installer**: the `-setup.exe` is downloaded to your Downloads folder, then launched only after you confirm.
+
+The connection is **HTTPS only**, the `SHA256SUMS.txt` checksum is verified when
+published, and nothing is installed without your approval. In portable mode,
+preferences are written to `settings.ini` next to the executable (via the
+`portable.txt` marker); in other modes they stay in the system registry.
+
 ## Security and scope
 
 - No password, file or hash is sent to a third-party service: everything is processed locally.
@@ -138,6 +170,7 @@ The choice is saved (`QSettings`) and restored on launch. The **📸 Screenshot*
 - MD5 and SHA-1 are kept for compatibility; **SHA-256 is recommended** for any integrity check.
 - The exported log is an unencrypted text file: do not store it in a shared location.
 - On exit, the application stops its threads and clears sensitive data (fields, hashes, log, clipboard if the application owned it).
+- The update checker makes **one public HTTPS request** to GitHub (no telemetry, no local data uploaded) and never installs anything automatically.
 
 ## Tests
 
@@ -182,8 +215,13 @@ The images shown above were generated with `--native`. On Windows, use `.\.venv\
 main.py              Application (window, pages, worker threads)
 src/constants.py     Palette, port table, app name and version
 src/i18n.py          FR/EN/AR dictionaries, translation engine, RTL selector
+src/runtime.py       pip/installer/portable modes, QSettings
+src/updater.py       GitHub Releases, versions, artifacts, SHA-256, safe ZIP
 tests/               Automated tests
 tools/screenshots.py FR/EN/AR screenshot generator (offscreen)
+tools/build_windows.py   PyInstaller --onedir + portable ZIP
+tools/write_sha256sums.py Artifact checksums
+installer/           Inno Setup script (Windows setup.exe)
 requirements.txt     Runtime dependency
 requirements.dev.txt Development dependencies
 pyproject.toml       Metadata, entry point, pytest configuration

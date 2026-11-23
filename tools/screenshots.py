@@ -36,7 +36,7 @@ DEMO_PROCESSOR = "Synthetic CPU (demo)"
 DEMO_HOSTNAME = "demo.local"
 PAGES = (
     "dashboard", "passwords", "strength", "hashing", "files",
-    "scanner", "base64", "network", "logs",
+    "scanner", "base64", "network", "update", "logs",
 )
 
 

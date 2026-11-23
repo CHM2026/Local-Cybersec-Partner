@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Release](https://img.shields.io/github/v/release/CHM2026/Local-Cybersec-Partner.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
 [![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
@@ -42,6 +42,20 @@ python3 -m venv .venv
 على Windows، إذا كان `python` يشير إلى إصدار أقدم، استخدم `py -3.15` بدلاً منه.
 
 للتطوير (بما في ذلك الاختبارات)، استبدل `requirements.txt` بـ `requirements.dev.txt` في أمر التثبيت أعلاه.
+
+### ويندوز: محمول أو مثبّت (بدون بايثون)
+
+من صفحة [Releases](https://github.com/CHM2026/Local-Cybersec-Partner/releases)،
+نزّل أحد ملفات ويندوز:
+
+- `CyberSecDashboard-<version>-portable.zip`: استخرجه ثم شغّل `CyberSecDashboard.exe`.
+  يؤدي وجود `portable.txt` إلى حفظ التفضيلات في `settings.ini` بجانب الملف التنفيذي
+  (دون كتابة أي شيء في سجل النظام)؛
+- `CyberSecDashboard-<version>-setup.exe`: تثبيت عادي مع اختصار في قائمة ابدأ؛
+  يُلغى التثبيت من *الإعدادات ← التطبيقات*.
+
+لا حاجة إلى بايثون لأي من الصيغتين. يتيح ملف `SHA256SUMS.txt` المرفق بالإصدار
+التحقق من سلامة الملفات المنزّلة.
 
 ## التشغيل
 
@@ -108,6 +122,7 @@ python3 -m pip uninstall local-cybersec-partner
 | 🔍 ماسح المنافذ | فحص TCP Connect لمدى من المنافذ (مضيف تم حله ومهلة زمنية مُتحقّق منها) |
 | ⚙️ Base64 | ترميز/فك ترميز صارم، مع عرض سداسي عشري للبيانات الثنائية |
 | 🌐 الشبكة | معلومات محلية، حل DNS غير متزامن، ping |
+| 🆕 التحديث | البحث عن إصدارات GitHub، تنزيل موجّه، والتحقق من SHA-256 |
 | 📋 السجل | سجل الإجراءات، مسحه، وتصديره كنص |
 
 ## تعدد اللغات (FR / EN / AR)
@@ -130,6 +145,22 @@ python3 -m pip uninstall local-cybersec-partner
 
 يُحفظ الاختيار (`QSettings`) ويُستعاد عند التشغيل. زر **📸 لقطة شاشة** يحفظ العرض الحالي بصيغة PNG.
 
+## التحديث
+
+تستعلم صفحة **🆕 التحديث** واجهة GitHub العامة مرة واحدة يومياً عند التشغيل
+(يمكن تعطيلها عبر مربع الاختيار)، أو عند الطلب بزر **تحقق الآن**. تعرض الصفحة
+الإصدار المثبّت والإصدار المتاح وملاحظات الإصدار.
+
+يزر **تنزيل التحديث** الملف المناسب لوضع التثبيت الحالي:
+
+- تثبيت **pip**: يظهر الأمر `py -3.15 -m pip install --upgrade …` ويمكن نسخه؛
+- **محمول**: يُستخرج أرشيف ZIP في مجلد مجاور باسم `CyberSecDashboard-vX.Y.Z`؛
+- **مثبّت ويندوز**: يُنزّل ملف `-setup.exe` إلى مجلد التنزيلات، ثم يُشغَّل بعد تأكيدك فقط.
+
+الاتصال **HTTPS فقط**، وتُتحقق بصمة `SHA256SUMS.txt` عند نشرها، ولا يُثبَّت أي
+شيء دون موافقتك. في الوضع المحمول تُحفظ التفضيلات في `settings.ini` بجانب
+الملف التنفيذي (بوجود الملف `portable.txt`)؛ وفي الوضعين الآخرين تبقى في سجل النظام.
+
 ## الأمان والنطاق
 
 - لا تُرسل أي كلمة مرور أو ملف أو بصمة إلى خدمة خارجية: تُعالَج كل البيانات محليًا.
@@ -138,6 +169,7 @@ python3 -m pip uninstall local-cybersec-partner
 - تُبقى MD5 و SHA-1 لأغراض التوافق؛ **يُنصح بـ SHA-256** لأي تحقق من السلامة.
 - السجل المُصدَّر ملف نصي غير مشفر: لا تخزّنه في موقع مشترك.
 - عند الإغلاق، توقف التطبيق خيوطه وتمسح البيانات الحساسة (الحقول، البصمات، السجل، الحافظة إذا كان التطبيق هو من كتبها).
+- يُجري فاحص التحديثات **طلب HTTPS واحداً** إلى GitHub (لا قياس عن بُعد ولا إرسال لأي بيانات محلية) ولا يثبّت أي شيء تلقائياً.
 
 ## الاختبارات
 
@@ -182,8 +214,13 @@ python tools/screenshots.py --native
 main.py              التطبيق (النافذة، الصفحات، خيوط العمل)
 src/constants.py     الألوان، جدول المنافذ، اسم التطبيق وإصداره
 src/i18n.py          قواميس FR/EN/AR، محرك الترجمة، محدد RTL
+src/runtime.py       أوضاع pip/المثبّت/المحمول، الإعدادات
+src/updater.py       إصدارات GitHub، البصمات، الأرشيف الآمن
 tests/               الاختبارات الآلية
 tools/screenshots.py مُولّد لقطات FR/EN/AR (بدون نافذة)
+tools/build_windows.py   PyInstaller + أرشيف محمول
+tools/write_sha256sums.py بصمات الملفات المنشورة
+installer/           سكربت Inno Setup (مثبّت ويندوز)
 requirements.txt     تبعية التشغيل
 requirements.dev.txt تبعيات التطوير
 pyproject.toml       البيانات الوصفية، نقطة الدخول، إعداد pytest

@@ -10,6 +10,7 @@ lazy import sys, hashlib, string, socket, base64
 lazy import os, platform, subprocess, re, secrets, hmac
 lazy from html import escape as _esc
 lazy from datetime import datetime
+lazy from pathlib import Path
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -17,8 +18,8 @@ from PySide6.QtWidgets import (
     QProgressBar, QFileDialog, QMessageBox, QStackedWidget, QFrame, QScrollArea,
     QButtonGroup,
 )
-from PySide6.QtCore import Qt, QTimer, QThread, Signal, QSettings
-from PySide6.QtGui import QFont, QCursor, QClipboard
+from PySide6.QtCore import Qt, QTimer, QThread, Signal, QSettings, QUrl
+from PySide6.QtGui import QFont, QCursor, QClipboard, QDesktopServices
 from PySide6.QtNetwork import QHostInfo, QNetworkInterface, QAbstractSocket
 
 from src.constants import (
@@ -26,6 +27,15 @@ from src.constants import (
     current_theme, set_theme,
 )
 from src.i18n import I18N, LANGUAGES, STRINGS, tr
+from src.runtime import (
+    app_settings, detect_distribution, distribution_i18n_key,
+    executable_dir, setting_flag,
+)
+from src.updater import (
+    RELEASES_PAGE, UpdateError, asset_for_mode, checksum_for_asset,
+    download_asset, downloads_dir, extract_portable_archive,
+    fetch_latest_release, is_newer, pip_install_command, temp_dir,
+)
 
 
 def _new_hash(algo):
@@ -154,6 +164,61 @@ class PingWorker(QThread):
             self.finished_ping.emit(False, str(e))
 
 
+class UpdateCheckWorker(QThread):
+    """Interroge l'API GitHub en arrière-plan, sans figer l'interface."""
+
+    finished_check = Signal(object, str)  # ReleaseInfo | None, message d'erreur
+
+    def __init__(self, current_version=APP_VERSION):
+        super().__init__()
+        self.current_version = current_version
+
+    def run(self):
+        try:
+            release = fetch_latest_release()
+            if release is not None and is_newer(release.version, self.current_version):
+                self.finished_check.emit(release, "")
+            else:
+                self.finished_check.emit(None, "")
+        except UpdateError as exc:
+            self.finished_check.emit(None, str(exc))
+        except Exception as exc:  # garde-fou : toujours répondre à l'interface
+            self.finished_check.emit(None, str(exc))
+
+
+class UpdateDownloadWorker(QThread):
+    """Télécharge et vérifie un artefact, avec progression et annulation."""
+
+    progress = Signal(int, int)                 # octets reçus, octets attendus
+    finished_download = Signal(str, str, str)   # chemin, erreur, état checksum
+
+    def __init__(self, release, mode, destination):
+        super().__init__()
+        self.release = release
+        self.mode = mode
+        self.destination = Path(destination)
+        self._cancelled = False
+
+    def stop(self):
+        self._cancelled = True
+
+    def run(self):
+        try:
+            asset = asset_for_mode(self.release, self.mode)
+            if asset is None:
+                raise UpdateError(tr("update.error.asset"))
+            digest, _sums_available = checksum_for_asset(self.release, asset.name)
+            state = "verified" if digest else "unverified"
+            path = download_asset(
+                asset, self.destination, expected_sha256=digest,
+                progress=lambda done, total: self.progress.emit(done, total),
+                cancelled=lambda: self._cancelled,
+            )
+            self.finished_download.emit(str(path), "", state)
+        except Exception as exc:
+            self.finished_download.emit("", str(exc), "error")
+
+
 class FileHashWorker(QThread):
     """Calcule l'empreinte d'un fichier par blocs, sans bloquer l'UI."""
 
@@ -250,8 +315,15 @@ class CyberSecApp(QMainWindow):
         self._last_strength     = None   # résumé du dernier score calculé
         self._closing           = False  # anti-fermetures concurrentes
         self._clock_labels      = []     # horloges affichées sur chaque page
+        # — Mises à jour —
+        self._update_mode       = detect_distribution()
+        self._release           = None   # dernière Release compatible trouvée
+        self._update_available  = False
+        self._update_status     = ("", "")  # (kind, détail) pour le rendu i18n
+        self._update_worker     = None
+        self._download_worker   = None
 
-        self._settings = QSettings("CyberSecPartner", "CyberSecDashboard")
+        self._settings = app_settings()
         saved_language = self._settings.value("language", "fr")
         I18N.set_language(saved_language if saved_language in LANGUAGES else "fr")
         saved_theme = self._settings.value("theme", "dark")
@@ -271,6 +343,13 @@ class CyberSecApp(QMainWindow):
         self._refresh_date()
 
         self._center_window()
+
+        # Contrôle quotidien silencieux : une seule requête, différée pour ne
+        # pas retarder l'affichage de la fenêtre.
+        if (setting_flag(self._settings, "update.auto_check", True)
+                and self._settings.value("update.last_check", "")
+                != datetime.now().strftime("%Y-%m-%d")):
+            QTimer.singleShot(1500, self._auto_check_updates)
 
     # ────────────────────────────────────────────────────────
     # HELPERS UI
@@ -447,6 +526,7 @@ class CyberSecApp(QMainWindow):
             ("scanner",   tr("nav.scanner")),
             ("base64",    tr("nav.base64")),
             ("network",   tr("nav.network")),
+            ("update",    tr("nav.update")),
             ("logs",      tr("nav.logs")),
             ("quit",      tr("nav.quit")),
         ]
@@ -552,6 +632,10 @@ class CyberSecApp(QMainWindow):
         main_layout.addWidget(self.stack, 1)
 
         self._build_all_pages()
+        if self._update_available:
+            nav = self.nav_buttons.get("update")
+            if nav is not None:
+                nav.setText(f"{tr('nav.update')}  •")
 
     # ────────────────────────────────────────────────────────
     # NAVIGATION
@@ -655,6 +739,8 @@ class CyberSecApp(QMainWindow):
         self._stop_thread(self._scan_worker, 6000)
         self._stop_thread(self._ping_worker, 15000)
         self._stop_thread(self._file_worker, 6000)
+        self._stop_thread(self._update_worker, 5000)
+        self._stop_thread(self._download_worker, 5000)
         self._clock_timer.stop()
 
         state = self._capture_ui_state()
@@ -740,6 +826,7 @@ class CyberSecApp(QMainWindow):
         self._build_scanner()
         self._build_base64()
         self._build_network()
+        self._build_update()
         self._build_logs()
 
     # ════════════════════════════════════════════════════════
@@ -1703,6 +1790,255 @@ class CyberSecApp(QMainWindow):
         self._log_action("log.ping", "log.ping.detail", host=host, state=("OK" if ok else "FAIL"))
 
     # ════════════════════════════════════════════════════════
+    #  PAGE : MISE À JOUR
+    # ════════════════════════════════════════════════════════
+    def _build_update(self):
+        layout = self._new_page("update")
+        self._page_header(layout, "🆕", tr("page.update.title"),
+                          tr("page.update.subtitle"))
+
+        info = self._card(layout, tr("update.installed"))
+        last_check = str(self._settings.value("update.last_check", "") or "") or tr("update.never")
+        for label, value in (
+            (tr("update.mode"), tr(distribution_i18n_key(self._update_mode))),
+            (tr("update.installed"), f"v{APP_VERSION}"),
+            (tr("update.last_check"), last_check),
+        ):
+            row = QHBoxLayout()
+            row.addWidget(self._label(f"  {label} :", size=9, color=PALETTE["dim"]))
+            row.addWidget(self._label(value, size=10, color=PALETTE["accent"]))
+            row.addStretch()
+            info.addLayout(row)
+
+        check = self._card(layout, tr("update.check_button"))
+        self.update_auto_cb = QCheckBox(tr("update.auto_check"))
+        self.update_auto_cb.setChecked(setting_flag(self._settings, "update.auto_check", True))
+        self.update_auto_cb.setFont(QFont(PALETTE["font_family"], 10))
+        self.update_auto_cb.setStyleSheet(f"color:{PALETTE["text"]}; background:transparent;")
+        self.update_auto_cb.stateChanged.connect(self._on_auto_check_changed)
+        check.addWidget(self.update_auto_cb)
+        self.update_check_btn = self._btn(
+            tr("update.check_button"), lambda: self._check_updates(False))
+        check.addWidget(self.update_check_btn)
+        self.update_status_lbl = self._label("", size=10, color=PALETTE["dim"])
+        self.update_status_lbl.setWordWrap(True)
+        check.addWidget(self.update_status_lbl)
+
+        avail = self._card(layout, tr("update.available"))
+        self.update_version_lbl = self._label(
+            tr("update.up_to_date"), size=12, bold=True, color=PALETTE["accent2"])
+        avail.addWidget(self.update_version_lbl)
+        self.update_notes = QTextEdit()
+        self.update_notes.setReadOnly(True)
+        self.update_notes.setMinimumHeight(110)
+        self.update_notes.setStyleSheet(
+            f"background-color:{PALETTE["sidebar"]}; color:{PALETTE["text"]}; border:none; padding:8px;")
+        self.update_notes.setFont(QFont(PALETTE["font_mono"], 9))
+        avail.addWidget(self.update_notes)
+
+        actions = QHBoxLayout()
+        self.update_download_btn = self._btn(
+            tr("update.download_button"), self._download_update,
+            color=PALETTE["accent2"])
+        self.update_download_btn.setEnabled(
+            self._release is not None and self._update_mode != "pip")
+        actions.addWidget(self.update_download_btn)
+        actions.addWidget(self._btn2(tr("update.open_release"), self._open_release_page))
+        if self._update_mode == "pip":
+            actions.addWidget(self._btn2(tr("update.copy_command"), self._copy_pip_command))
+        actions.addStretch()
+        avail.addLayout(actions)
+
+        self.update_pip_lbl = self._label(
+            "", size=9, color=PALETTE["dim"], family=PALETTE["font_mono"])
+        self.update_pip_lbl.setWordWrap(True)
+        self.update_pip_lbl.setVisible(self._update_mode == "pip")
+        avail.addWidget(self.update_pip_lbl)
+        self.update_progress = QProgressBar()
+        self.update_progress.setVisible(False)
+        avail.addWidget(self.update_progress)
+
+        sec = self._card(layout, tr("update.security"))
+        detail = self._label(tr("update.security_detail"), size=9, color=PALETTE["dim"])
+        detail.setWordWrap(True)
+        sec.addWidget(detail)
+        layout.addStretch()
+
+        self._render_update_status()
+        if self._release is not None:
+            self._display_release(self._release)
+
+    def _set_update_status(self, kind, detail=""):
+        self._update_status = (kind, detail)
+        self._render_update_status()
+
+    def _render_update_status(self):
+        """Redessine le statut dans la langue courante (y compris après RTL)."""
+        label = getattr(self, "update_status_lbl", None)
+        if label is None:
+            return
+        kind, detail = self._update_status
+        texts = {
+            "checking": tr("update.checking"),
+            "uptodate": tr("update.up_to_date"),
+            "available": tr("update.available_detail", version=detail),
+            "error": detail,
+            "downloading": tr("update.downloading", percent=detail),
+            "downloaded": tr("update.downloaded", file=detail),
+        }
+        colors = {
+            "error": PALETTE["danger"],
+            "available": PALETTE["accent2"],
+            "checking": PALETTE["warning"],
+            "downloading": PALETTE["warning"],
+            "downloaded": PALETTE["success"],
+        }
+        label.setText(texts.get(kind, ""))
+        label.setStyleSheet(f"color:{colors.get(kind, PALETTE["dim"])};")
+
+    def _display_release(self, release):
+        """Remplit la carte « version disponible » après une vérification."""
+        label = getattr(self, "update_version_lbl", None)
+        if label is None:
+            return
+        label.setText(tr("update.available_detail", version=release.version))
+        notes = getattr(self, "update_notes", None)
+        if notes is not None:
+            notes.setPlainText(release.notes.strip() or tr("update.no_notes"))
+        btn = getattr(self, "update_download_btn", None)
+        if btn is not None:
+            btn.setEnabled(self._update_mode != "pip")
+        pip_label = getattr(self, "update_pip_lbl", None)
+        if pip_label is not None and self._update_mode == "pip":
+            pip_label.setText(pip_install_command(release))
+
+    def _auto_check_updates(self):
+        if setting_flag(self._settings, "update.auto_check", True):
+            self._check_updates(silent=True)
+
+    def _on_auto_check_changed(self, state):
+        self._settings.setValue("update.auto_check", int(state) != 0)
+
+    def _check_updates(self, silent=False):
+        if self._update_worker is not None and self._update_worker.isRunning():
+            return
+        if not silent:
+            self._set_update_status("checking")
+        self.update_check_btn.setEnabled(False)
+        self._update_worker = UpdateCheckWorker(APP_VERSION)
+        self._update_worker.finished_check.connect(
+            lambda release, error, s=silent: self._on_update_checked(release, error, s))
+        self._update_worker.start()
+
+    def _on_update_checked(self, release, error, silent=False):
+        self.update_check_btn.setEnabled(True)
+        self._settings.setValue("update.last_check",
+                                datetime.now().strftime("%Y-%m-%d"))
+        if error:
+            if not silent:
+                self._set_update_status("error", error)
+                QMessageBox.warning(self, tr("common.warning"), error)
+            return
+        if release is None:
+            if not silent:
+                self._set_update_status("uptodate")
+            return
+
+        self._release = release
+        self._update_available = True
+        self._set_update_status("available", release.version)
+        self._log_action("log.update.check", "log.update.check.detail",
+                         version=release.version)
+        self._display_release(release)
+        nav = self.nav_buttons.get("update")
+        if nav is not None:
+            nav.setText(f"{tr('nav.update')}  •")
+
+    def _open_release_page(self):
+        url = self._release.page_url if self._release is not None else RELEASES_PAGE
+        QDesktopServices.openUrl(QUrl(url))
+
+    def _copy_pip_command(self):
+        if self._release is None:
+            return
+        self._set_clipboard(pip_install_command(self._release))
+        QMessageBox.information(self, tr("common.info"), tr("msg.result_copied"))
+
+    def _download_update(self):
+        if self._release is None:
+            return
+        if self._download_worker is not None and self._download_worker.isRunning():
+            return
+        if self._update_mode == "pip":
+            self._open_release_page()
+            return
+
+        asset = asset_for_mode(self._release, self._update_mode)
+        if asset is None:
+            QMessageBox.warning(self, tr("common.warning"), tr("update.error.asset"))
+            return
+        if self._update_mode == "installer":
+            destination = downloads_dir() / asset.name
+        else:
+            destination = temp_dir() / asset.name
+
+        self._download_worker = UpdateDownloadWorker(
+            self._release, self._update_mode, destination)
+        self._download_worker.progress.connect(self._on_download_progress)
+        self._download_worker.finished_download.connect(self._on_download_done)
+        self.update_progress.setRange(0, 100)
+        self.update_progress.setValue(0)
+        self.update_progress.setVisible(True)
+        self.update_download_btn.setEnabled(False)
+        self._set_update_status("downloading", "0")
+        self._download_worker.start()
+
+    def _on_download_progress(self, done, total):
+        percent = int(done * 100 / total) if total else 0
+        self.update_progress.setValue(percent)
+        self._set_update_status("downloading", str(percent))
+
+    def _on_download_done(self, path, error, state):
+        self.update_progress.setVisible(False)
+        self.update_download_btn.setEnabled(self._release is not None)
+        if error:
+            self._set_update_status("error", error)
+            QMessageBox.critical(self, tr("common.error"), error)
+            return
+
+        filename = Path(path).name
+        checksum_text = (tr("update.verified") if state == "verified"
+                         else tr("update.unverified"))
+        self._set_update_status("downloaded", filename)
+        self._log_action("log.update.download", "log.update.download.detail",
+                         file=filename, checksum=checksum_text)
+
+        if self._update_mode == "portable":
+            target = executable_dir().parent / f"CyberSecDashboard-v{self._release.version}"
+            folder, exe = extract_portable_archive(path, target)
+            shown = str(exe) if exe is not None else str(folder)
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle(tr("common.info"))
+            msg.setText(tr("update.portable_ready", path=shown))
+            open_btn = msg.addButton(tr("update.open_folder"),
+                                     QMessageBox.ButtonRole.ActionRole)
+            msg.addButton(QMessageBox.StandardButton.Ok)
+            msg.exec()
+            if msg.clickedButton() == open_btn:
+                QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
+            return
+
+        reply = QMessageBox.question(
+            self, tr("common.confirmation"),
+            tr("update.installer_confirm", path=path))
+        if reply == QMessageBox.StandardButton.Yes:
+            try:
+                subprocess.Popen([path], shell=False)
+            except OSError as exc:
+                QMessageBox.critical(self, tr("common.error"), str(exc))
+
+    # ════════════════════════════════════════════════════════
     #  PAGE : JOURNAL D'ACTIVITÉ
     # ════════════════════════════════════════════════════════
     def _build_logs(self):
@@ -1811,7 +2147,8 @@ class CyberSecApp(QMainWindow):
         msg.setText(tr("quit.question"))
         if (self._scanning
                 or (self._ping_worker is not None and self._ping_worker.isRunning())
-                or (self._file_worker is not None and self._file_worker.isRunning())):
+                or (self._file_worker is not None and self._file_worker.isRunning())
+                or (self._download_worker is not None and self._download_worker.isRunning())):
             msg.setInformativeText(tr("quit.busy"))
         
         msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -1860,6 +2197,8 @@ class CyberSecApp(QMainWindow):
         self._stop_thread(self._scan_worker, 6000)
         self._stop_thread(self._ping_worker, 15000)
         self._stop_thread(self._file_worker, 6000)
+        self._stop_thread(self._update_worker, 5000)
+        self._stop_thread(self._download_worker, 5000)
 
         # Arrêt de l'horloge périodique (QTimer).
         if hasattr(self, "_clock_timer"):
@@ -1940,7 +2279,10 @@ def apply_global_style(app):
 
 
 def main():
-    app = QApplication(sys.argv)
+    # Les indicateurs de mode restent dans sys.argv pour runtime.detect_distribution(),
+    # mais ne doivent pas être interprétés comme des options Qt.
+    app = QApplication([a for a in sys.argv
+                        if a not in ("--portable", "--installer")])
     app.setStyle("Fusion")
     apply_global_style(app)
     window = CyberSecApp()

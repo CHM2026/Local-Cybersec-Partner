@@ -107,6 +107,20 @@ Le dossier `dist/` est ignoré par Git : le wheel n’est jamais commité. Le pa
 est pur Python (`py3-none-any`) : un seul wheel fonctionne sur Windows, macOS et
 Linux.
 
+Pour les versions qui publient des exécutables, joindre aussi un fichier
+`SHA256SUMS.txt` listant `<empreinte>  <nom de l'artefact>` pour chaque ZIP et
+`-setup.exe` : le vérificateur intégré à l'application l'utilise pour refuser un
+téléchargement corrompu. En son absence, le téléchargement reste possible mais
+est signalé comme non vérifié.
+
+Le workflow **`Build Windows executables`**
+(`.github/workflows/build-windows.yml`) construit ces artefacts sur
+`windows-latest` (PyInstaller `--onedir` puis Inno Setup 6) et les joint à la
+Release dès sa publication. Comme `Release wheel`, il accepte un `tag` en
+déclenchement manuel (onglet **Actions → Build Windows executables → Run
+workflow**) pour compléter une Release déjà publiée. Le tag doit toujours être
+de la forme `v<version pyproject.toml>` : le workflow refuse un décalage.
+
 ### 4.5 Créer le tag annoté
 
 ```bash
@@ -169,6 +183,8 @@ Vérifier aussi :
 - le badge de CI du README (il doit rester *passing*) ;
 - le badge de release (il doit afficher `v1.0.0`) ;
 - le run **Release wheel** au vert et le wheel présent dans **Assets** ;
+- le run **Build Windows executables** au vert et, dans **Assets**, le ZIP
+  `-portable.zip`, le `-setup.exe` et `SHA256SUMS.txt` ;
 - l’installation depuis le tag dans un environnement neuf (optionnel) :
 
 ```bash

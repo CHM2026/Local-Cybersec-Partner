@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Release](https://img.shields.io/github/v/release/CHM2026/Local-Cybersec-Partner.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
 [![Plateformes](https://img.shields.io/badge/plateformes-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
@@ -42,6 +42,20 @@ python3 -m venv .venv
 Sur Windows, si `python` pointe vers une version antérieure, utilisez `py -3.15` à la place.
 
 Pour le développement (tests inclus), remplacez `requirements.txt` par `requirements.dev.txt` dans la commande d’installation.
+
+### Windows : portable ou installateur (sans Python)
+
+Depuis la page [Releases](https://github.com/CHM2026/Local-Cybersec-Partner/releases),
+téléchargez l'un des artefacts Windows :
+
+- `CyberSecDashboard-<version>-portable.zip` : décompressez l'archive, puis lancez
+  `CyberSecDashboard.exe`. Le fichier `portable.txt` force l'enregistrement des
+  préférences dans `settings.ini` à côté de l'exécutable (rien dans le registre) ;
+- `CyberSecDashboard-<version>-setup.exe` : installation classique avec raccourci
+  dans le menu Démarrer ; désinstallation via *Paramètres → Applications*.
+
+Aucun Python n'est requis pour ces deux formats. Le fichier `SHA256SUMS.txt`
+joint à la Release permet de vérifier l'intégrité des téléchargements.
 
 ## Lancement
 
@@ -108,6 +122,7 @@ commande (`cybersec-dashboard`). pip retire aussi la commande du dossier
 | 🔍 Scanner Ports | Scan TCP Connect d'une plage de ports (hôte résolu et timeout validés) |
 | ⚙️ Base64 | Encodage/décodage strict, avec affichage hexadécimal des données binaires |
 | 🌐 Réseau | Informations locales, résolution DNS asynchrone, ping |
+| 🆕 Mise à jour | Recherche des Releases GitHub, téléchargement guidé et vérification SHA-256 |
 | 📋 Journal | Historique des actions, effacement et export texte |
 
 ## Multilingue (FR / EN / AR)
@@ -130,6 +145,25 @@ Deux palettes sont disponibles via le sélecteur **🎨 Thème** de la barre lat
 
 Le choix est mémorisé (`QSettings`) et restauré au lancement. Le bouton **📸 Capture d'écran** enregistre le rendu courant en PNG.
 
+## Mise à jour
+
+La page **🆕 Mise à jour** interroge l'API publique GitHub une fois par jour au
+démarrage (désactivable par la case à cocher), ou à la demande avec **Vérifier
+maintenant**. Elle affiche la version installée, la version disponible et les
+notes de la Release.
+
+Le bouton **Télécharger la mise à jour** dépose l'artefact adapté au mode courant :
+
+- installation **pip** : la commande `py -3.15 -m pip install --upgrade …` est affichée et peut être copiée ;
+- **portable** : l'archive ZIP est extraite dans un dossier voisin `CyberSecDashboard-vX.Y.Z` ;
+- **installateur Windows** : le `-setup.exe` est téléchargé dans vos Téléchargements, puis lancé uniquement après confirmation.
+
+La connexion est **HTTPS uniquement**, l'empreinte `SHA256SUMS.txt` est vérifiée
+quand elle est publiée, et rien n'est installé sans votre accord. Pour le mode
+portable, les préférences sont écrites dans `settings.ini` à côté de
+l'exécutable (fichier `portable.txt`) ; pour les autres modes, elles restent
+dans le registre système.
+
 ## Sécurité et périmètre
 
 - Aucun mot de passe, fichier ou hash n'est envoyé à un service tiers : tout est traité localement.
@@ -138,6 +172,7 @@ Le choix est mémorisé (`QSettings`) et restauré au lancement. Le bouton **�
 - MD5 et SHA-1 sont conservés à des fins de compatibilité ; **SHA-256 est recommandé** pour toute vérification d'intégrité.
 - Le journal exporté est un fichier texte non chiffré : ne le stockez pas dans un emplacement partagé.
 - À la fermeture, l'application arrête ses threads et efface les données sensibles (champs, empreintes, journal, presse-papiers si l'application en était l'auteure).
+- Le vérificateur de mise à jour effectue **une requête HTTPS publique** vers GitHub (aucune télémétrie, aucun envoi de données locales) et n'installe rien automatiquement.
 
 ## Tests
 
@@ -182,8 +217,13 @@ Les images présentées ci-dessus ont été générées avec `--native`. Sur Win
 main.py              Application (fenêtre, pages, threads de travail)
 src/constants.py     Palette, table des ports, nom et version de l'app
 src/i18n.py          Dictionnaires FR/EN/AR, moteur de traduction, sélecteur RTL
+src/runtime.py       Modes pip/installer/portable, réglages QSettings
+src/updater.py       GitHub Releases, versions, artefacts, SHA-256, ZIP sûr
 tests/               Tests automatisés
 tools/screenshots.py Générateur de captures FR/EN/AR (hors écran)
+tools/build_windows.py   PyInstaller --onedir + ZIP portable
+tools/write_sha256sums.py Empreintes des artefacts publiés
+installer/           Script Inno Setup (setup.exe Windows)
 requirements.txt     Dépendance d'exécution
 requirements.dev.txt Dépendances de développement
 pyproject.toml       Métadonnées, script d'entrée, configuration pytest

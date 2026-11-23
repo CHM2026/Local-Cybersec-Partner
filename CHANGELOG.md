@@ -7,6 +7,22 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 ## [Non publié]
 
 ### Ajouté
+- **Système de mise à jour** intégré : page dédiée dans les trois langues,
+  contrôle silencieux une fois par jour au démarrage (désactivable), notes de
+  Release, état de la vérification et pastille discrète dans la navigation.
+- Modules `src/runtime.py` (détection `pip` / `installer` / `portable` et
+  réglages `settings.ini` à côté de l'exécutable) et `src/updater.py`
+  (GitHub Releases, comparaison de versions, artefacts par mode, téléchargement
+  vérifié SHA-256 et extraction sûre des archives ZIP).
+- Téléchargement **guidé** : ZIP portable extrait dans un dossier voisin,
+  `-setup.exe` lancé après confirmation, commande pip copiable ; aucune
+  installation automatique et aucune télémétrie.
+- Artefacts Windows construits par CI : `tools/build_windows.py` (PyInstaller
+  `--onedir` + ZIP portable avec `portable.txt`) et `installer/CyberSecDashboard.iss`
+  (Inno Setup 6, raccourci menu Démarrer, option bureau, désinstallateur).
+- Workflow `build-windows.yml` : construit le ZIP portable, le `-setup.exe` et
+  `SHA256SUMS.txt`, puis les joint automatiquement à la Release.
+- `tools/write_sha256sums.py` : génère les empreintes SHA-256 des artefacts.
 - Badge de **release** et badge de **plateformes** dans les README FR/EN/AR.
 - Workflow `release.yml` : le wheel `py3-none-any` est construit puis joint
   automatiquement à la Release dès sa publication (ou à la demande pour un tag
@@ -14,8 +30,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 - Tests CI étendus à **macOS et Windows** en plus d’Ubuntu (Python 3.15).
 
 ### Modifié
-- `requirements.dev.txt` inclut `build` : construction du paquet possible en
-  local avec `python -m build --wheel`.
+- README FR/EN/AR : sections « Windows : portable ou installateur » et
+  « Mise à jour », précision sur la requête HTTPS unique du vérificateur.
+- `tools/screenshots.py` : la page `update` peut être capturée comme les autres.
+- `requirements.dev.txt` et l'extra `dev` incluent `build` et `pyinstaller` :
+  construction du wheel et des exécutables possible en local.
 - Runbook `docs/RELEASE.md` mis à jour (attachement automatique du wheel).
 
 ### Corrigé
