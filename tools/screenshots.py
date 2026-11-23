@@ -31,7 +31,8 @@ PAGES = (
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    description = next(iter((__doc__ or "").splitlines()), "")
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--pages", default="dashboard",
         help="Pages à capturer, séparées par des virgules (défaut : dashboard).",
