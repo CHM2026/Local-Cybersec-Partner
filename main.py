@@ -242,6 +242,7 @@ class CyberSecApp(QMainWindow):
         I18N.set_language(saved_language if saved_language in LANGUAGES else "fr")
         saved_theme = self._settings.value("theme", "dark")
         set_theme(saved_theme if saved_theme in THEMES else "dark")
+        apply_global_style(QApplication.instance())
         self.setStyleSheet(f"background-color:{PALETTE["bg"]};")
 
         self.pages = {}
@@ -575,6 +576,7 @@ class CyberSecApp(QMainWindow):
             return
         set_theme(code)
         self._settings.setValue("theme", code)
+        apply_global_style(QApplication.instance())
         self.setStyleSheet(f"background-color:{PALETTE["bg"]};")
         self._rebuild_ui(self.current_page or "dashboard")
 
@@ -1811,11 +1813,11 @@ class CyberSecApp(QMainWindow):
             }}
             QMessageBox QLabel {{ color: {PALETTE["text"]}; background: transparent; }}
             QPushButton {{
-                color: {PALETTE["text"]};
+                background-color: {PALETTE["border"]}; color: {PALETTE["text"]};
                 padding: 6px 14px; border-radius: 4px; border: none;
             }}
-            QPushButton:hover {{ background-color: {PALETTE["danger"]}; }}
-            QPushButton:pressed {{ background-color: {PALETTE["success"]}; }}
+            QPushButton:hover {{ background-color: {PALETTE["danger"]}; color: #ffffff; }}
+            QPushButton:pressed {{ background-color: {PALETTE["success"]}; color: #ffffff; }}
         """)
         msg.setFont(QFont(PALETTE["font_family"], 11))
 
@@ -1897,14 +1899,20 @@ class CyberSecApp(QMainWindow):
 # ════════════════════════════════════════════════════════════
 #  POINT D'ENTRÉE
 # ════════════════════════════════════════════════════════════
-def main():
-    app = QApplication(sys.argv)
-    app.setStyle("Fusion")
+_GLOBAL_STYLE_STATE = {"app": None, "theme": None}
+
+
+def apply_global_style(app):
+    """Applique la palette courante aux dialogues et widgets globaux."""
+    key = (id(app), current_theme())
+    if (_GLOBAL_STYLE_STATE["app"], _GLOBAL_STYLE_STATE["theme"]) == key:
+        return
+    _GLOBAL_STYLE_STATE["app"], _GLOBAL_STYLE_STATE["theme"] = key
     app.setStyleSheet(f"""
         QWidget {{ color:{PALETTE["text"]}; font-family:'{PALETTE["font_family"]}'; }}
         QToolTip {{ background-color:{PALETTE["card"]}; color:{PALETTE["text"]}; border:1px solid {PALETTE["border"]}; }}
-        QMessageBox {{ background-color:{PALETTE["card"]}; }}
-        QMessageBox QLabel {{ color:{PALETTE["text"]}; }}
+        QMessageBox {{ background-color:{PALETTE["card"]}; color:{PALETTE["text"]}; }}
+        QMessageBox QLabel {{ color:{PALETTE["text"]}; background:transparent; }}
         QMessageBox QPushButton {{
             background-color:{PALETTE["border"]}; color:{PALETTE["text"]}; padding:6px 14px; border-radius:4px;
         }}
@@ -1913,6 +1921,12 @@ def main():
             selection-background-color:{PALETTE["accent"]}; selection-color:{PALETTE["bg"]};
         }}
     """)
+
+
+def main():
+    app = QApplication(sys.argv)
+    app.setStyle("Fusion")
+    apply_global_style(app)
     window = CyberSecApp()
     window.show()
     sys.exit(app.exec())

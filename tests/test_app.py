@@ -153,3 +153,23 @@ def test_theme_switch_updates_palette_and_setting(window):
     window.theme_combo.setCurrentIndex(0)
     assert current_theme() == "dark"
     assert PALETTE["bg"] == "#0d1117"
+
+
+def test_global_stylesheet_follows_theme(window):
+    from PySide6.QtWidgets import QApplication
+
+    from src.constants import current_theme
+
+    # QApplication.instance() est typé QCoreApplication | None : on réduit le
+    # type pour que Pylance sache que styleSheet() est disponible ici.
+    app = QApplication.instance()
+    assert isinstance(app, QApplication)
+    window.lang_combo.setCurrentIndex(0)
+
+    window.theme_combo.setCurrentIndex(1)
+    assert current_theme() == "light"
+    assert "#f6f8fb" in app.styleSheet()
+    assert "#e6edf3" not in app.styleSheet()
+
+    window.theme_combo.setCurrentIndex(0)
+    assert "#e6edf3" in app.styleSheet()

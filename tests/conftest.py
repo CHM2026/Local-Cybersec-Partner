@@ -14,6 +14,18 @@ from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QApplication
 
 from src.constants import current_theme, set_theme
+from src.i18n import I18N
+
+
+@pytest.fixture(autouse=True)
+def stable_language():
+    """Garantit un départ en français pour chaque test, quel que soit l'état QSettings."""
+    previous = I18N.language
+    I18N.set_language("fr")
+    QSettings("CyberSecPartner", "CyberSecDashboard").setValue("language", "fr")
+    yield
+    I18N.set_language(previous)
+    QSettings("CyberSecPartner", "CyberSecDashboard").setValue("language", previous)
 
 
 @pytest.fixture(autouse=True)
