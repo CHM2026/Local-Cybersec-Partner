@@ -1899,7 +1899,9 @@ class CyberSecApp(QMainWindow):
 # ════════════════════════════════════════════════════════════
 #  POINT D'ENTRÉE
 # ════════════════════════════════════════════════════════════
-_GLOBAL_STYLE_STATE = {"app": None, "theme": None}
+# Mémorise le couple (identifiant de l'application, nom du thème) sous deux
+# clés. Valeurs hétérogènes (int | str | None) : annotation pour Pylance.
+_GLOBAL_STYLE_STATE: dict[str, object] = {"app": None, "theme": None}
 
 
 def apply_global_style(app):
