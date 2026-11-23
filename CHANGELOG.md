@@ -10,7 +10,10 @@ _(Rien pour le moment.)_
 
 ## [1.0.0] - 2026-11-23
 
-Première version stable publique.
+Première version stable publique de **CyberSec Dashboard** — Python 3.15+, PySide6,
+interface FR/EN/AR, thèmes sombre et clair.
+
+[Documentation](https://github.com/CHM2026/Local-Cybersec-Partner#readme)
 
 ### Ajouté
 - Interface PySide6 avec neuf modules : scanner de ports, générateur et
@@ -45,3 +48,10 @@ Première version stable publique.
 - Textes invisibles dans les `QMessageBox` en thème clair.
 - Fuite de langue entre tests et incohérence de version entre `pyproject.toml`
   et l’interface.
+
+### Installation rapide
+
+```bash
+pip install "git+https://github.com/CHM2026/Local-Cybersec-Partner.git@v1.0.0"
+cybersec-dashboard
+```
