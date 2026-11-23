@@ -6,6 +6,19 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 
 ## [Non publié]
 
+### Ajouté
+- Workflow `publish-pypi.yml` : publication du wheel et du sdist sur PyPI via
+  *Trusted Publishing* (OIDC), sans jeton stocké. Métadonnées du paquet enrichies
+  (licence MIT, auteur, mots-clés, classifiers, URLs, description PyPI dédiée).
+- `MANIFEST.in` et `docs/PYPI_README.md` : description lisible sur PyPI avec des
+  liens et captures en URL absolues.
+
+### Modifié
+- README FR/EN/AR : les aperçus montrent désormais la page **🆕 Mise à jour** ;
+  toutes les captures (dashboard et update, FR/EN/AR, sombre/clair) ont été
+  régénérées avec la navigation à jour.
+- `docs/RELEASE.md` : nouvelle section « Publication sur PyPI ».
+
 ## [1.1.0] - 2026-11-23
 
 Version mineure : mise à jour intégrée et diffusée sous forme d'exécutables

@@ -21,6 +21,10 @@ Clair 2026 :
 
 ![Tableau de bord en français — clair 2026](docs/screenshots/dashboard-fr-light.png)
 
+Page **🆕 Mise à jour** (thème sombre) :
+
+![Page Mise à jour en français — sombre](docs/screenshots/update-fr-dark.png)
+
 > ⚠️ **Prérequis : Python 3.15 ou supérieur.** Le code utilise la syntaxe `lazy import` (PEP 810) et les f-strings imbriquées (PEP 701). Sur Python ≤ 3.14, le lancement échoue avec un `SyntaxError`.
 
 ## Installation
@@ -196,7 +200,7 @@ Les tests s'exécutent en mode Qt `offscreen` : aucune fenêtre n'est ouverte.
 ```bash
 python tools/screenshots.py
 python tools/screenshots.py --native --theme light
-python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+python tools/screenshots.py --pages dashboard,update --out docs/screenshots
 ```
 
 Le script génère `docs/screenshots/<page>-<langue>-<theme>.png` pour le français, l’anglais et l’arabe, en sombre et en clair. Par défaut, il tourne en mode `offscreen` (aucune fenêtre, idéal en CI), mais les emoji y sont rendus en monochrome.

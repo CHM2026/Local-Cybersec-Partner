@@ -226,10 +226,53 @@ La procédure générale ci-dessus reste valable ; seules les valeurs changent :
 2. Publier le commit, créer le tag annoté `v1.1.0` et le pousser.
 3. Créer la Release GitHub `v1.1.0` : titre `v1.1.0 — CyberSec Dashboard`,
    description = section `[1.1.0]` du `CHANGELOG.md`, label **None**.
-4. Les workflows **`Release wheel`** et **`Build Windows executables`** se
-   déclenchent automatiquement. Vérifier dans **Assets** :
+4. Les workflows **`Release wheel`**, **`Build Windows executables`** et
+   **`Publish to PyPI`** se déclenchent automatiquement. Vérifier dans **Assets** :
    `local_cybersec_partner-1.1.0-py3-none-any.whl`,
    `CyberSecDashboard-1.1.0-portable.zip`,
    `CyberSecDashboard-1.1.0-setup.exe` et `SHA256SUMS.txt`.
 5. Ne jamais déplacer `v1.0.0` : les correctifs ultérieurs iront dans `v1.1.1`.
+
+## 8. Publication sur PyPI
+
+Le paquet est distribué sous le nom **`local-cybersec-partner`** (nom libre sur
+PyPI au 23/11/2026). Le workflow `.github/workflows/publish-pypi.yml` construit
+le wheel **et** le sdist, valide les métadonnées avec `twine check`, puis les
+dépose sur PyPI via **Trusted Publishing (OIDC)** : aucun jeton à stocker dans
+les secrets GitHub.
+
+### Configuration unique à faire sur PyPI
+
+1. Créer un compte sur <https://pypi.org/account/register/> et vérifier l'adresse
+   e-mail, puis activer la 2FA.
+2. Ouvrir <https://pypi.org/manage/account/publishing/> et ajouter un
+   *trusted publisher* avec exactement :
+   - **PyPI Project Name** : `local-cybersec-partner`
+   - **Owner** : `CHM2026`
+   - **Repository name** : `Local-Cybersec-Partner`
+   - **Workflow filename** : `publish-pypi.yml`
+   - **Environment name** : `pypi`
+3. Côté GitHub, l'environnement `pypi` se crée au premier lancement. Ajoutez-y un
+   approbateur dans *Settings → Environments* si vous voulez valider manuellement
+   chaque publication.
+
+### Publier
+
+- **Automatiquement** : publier une Release GitHub. Le workflow vérifie que le tag
+  est bien `v<version du pyproject.toml>`, puis publie sur PyPI.
+- **Manuellement** : *Actions → Publish to PyPI → Run workflow*, champ `tag` =
+  `v1.1.0`. C'est la méthode à utiliser **pour la première publication de v1.1.0**,
+  car la Release est déjà publiée (le workflow n'a pas pu se déclencher
+  rétroactivement).
+
+Vérification : <https://pypi.org/project/local-cybersec-partner/> puis
+`py -3.15 -m pip install local-cybersec-partner` dans un environnement propre.
+
+⚠️ PyPI est immuable : une version publiée ne peut pas être remplacée. Toute
+correction après publication doit porter un nouveau numéro (`v1.1.1`, etc.).
+
+Alternative sans Trusted Publishing : créer un *API token* PyPI limité au projet,
+le stocker comme secret GitHub `PYPI_API_TOKEN` et remplacer la dernière étape du
+workflow par `pypa/gh-action-pypi-publish` avec
+`password: ${{ secrets.PYPI_API_TOKEN }}`.
 

@@ -21,6 +21,10 @@ Light 2026:
 
 ![Dashboard in English — light 2026](docs/screenshots/dashboard-en-light.png)
 
+**🆕 Update** page (dark theme):
+
+![Update page in English — dark](docs/screenshots/update-en-dark.png)
+
 > ⚠️ **Requirement: Python 3.15 or later.** The code uses the `lazy import` syntax (PEP 810) and nested f-strings (PEP 701). On Python ≤ 3.14, startup fails with a `SyntaxError`.
 
 ## Installation
@@ -194,7 +198,7 @@ Tests run in Qt `offscreen` mode: no window is opened.
 ```bash
 python tools/screenshots.py
 python tools/screenshots.py --native --theme light
-python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+python tools/screenshots.py --pages dashboard,update --out docs/screenshots
 ```
 
 The script generates `docs/screenshots/<page>-<language>-<theme>.png` for French, English and Arabic, in both dark and light variants. By default it runs in `offscreen` mode (no window, ideal for CI), but emoji are rendered in monochrome.

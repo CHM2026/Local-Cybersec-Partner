@@ -21,6 +21,10 @@
 
 ![لوحة التحكم بالعربية — فاتحة 2026](docs/screenshots/dashboard-ar-light.png)
 
+صفحة **🆕 التحديث** (السمة الداكنة):
+
+![صفحة التحديث بالعربية — داكنة](docs/screenshots/update-ar-dark.png)
+
 > ⚠️ **المتطلب: Python 3.15 أو أحدث.** يستخدم الكود صيغة `lazy import` (PEP 810) والسلاسل النصية المتداخلة f-strings (PEP 701). على Python ≤ 3.14 يفشل التشغيل مع ظهور `SyntaxError`.
 
 ## التثبيت
@@ -193,7 +197,7 @@ python3 -m pip uninstall local-cybersec-partner
 ```bash
 python tools/screenshots.py
 python tools/screenshots.py --native --theme light
-python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+python tools/screenshots.py --pages dashboard,update --out docs/screenshots
 ```
 
 يُنشئ السكربت `docs/screenshots/<page>-<language>-<theme>.png` للفرنسية والإنجليزية والعربية، بالسمة الداكنة والفاتحة. افتراضياً يعمل في وضع `offscreen` (بدون نافذة، مثالي لـ CI)، لكن الرموز التعبيرية تظهر بالأبيض والأسود.

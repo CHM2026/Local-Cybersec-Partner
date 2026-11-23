@@ -1,0 +1,2 @@
+include LICENSE README.md README.en.md README.ar.md CHANGELOG.md
+include docs/PYPI_README.md
