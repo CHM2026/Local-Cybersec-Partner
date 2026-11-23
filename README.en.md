@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-26%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > Languages: [Français](README.md) · **English** · [العربية](README.ar.md)
 
@@ -111,7 +111,15 @@ python tools/screenshots.py
 python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
 ```
 
-The script generates `docs/screenshots/<page>-<language>.png` for French, English and Arabic without opening a window (`QT_QPA_PLATFORM=offscreen`). On Windows, use `.\.venv\Scripts\python.exe tools\screenshots.py` if needed.
+The script generates `docs/screenshots/<page>-<language>.png` for French, English and Arabic. By default it runs in `offscreen` mode (no window, ideal for CI), but emoji are rendered in monochrome.
+
+For **colour emoji**, add `--native` (a display is required):
+
+```bash
+python tools/screenshots.py --native
+```
+
+The images shown above were generated with `--native`. On Windows, use `.\.venv\Scripts\python.exe tools\screenshots.py --native` if needed.
 
 ## Structure
 

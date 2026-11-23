@@ -1,11 +1,15 @@
-"""Génère des captures PNG de l'application, sans fenêtre visible.
+"""Génère des captures PNG de l'application, avec ou sans fenêtre visible.
 
-Le mode Qt ``offscreen`` est activé avant tout import PySide6 afin que le
-script fonctionne de la même façon sur Windows, macOS et Linux (y compris en CI).
+Par défaut, le mode Qt ``offscreen`` est utilisé : le script fonctionne partout,
+y compris en CI, mais les emoji y sont rendus en monochrome.
+
+Avec ``--native``, la plateforme graphique du système est utilisée afin
+d'obtenir les emoji en couleur. Un affichage est alors nécessaire.
 
 Exemples :
     python tools/screenshots.py
-    python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+    python tools/screenshots.py --native
+    python tools/screenshots.py --native --pages dashboard,scanner
 """
 
 import argparse
@@ -13,16 +17,9 @@ import os
 import sys
 from pathlib import Path
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-
-from PySide6.QtWidgets import QApplication  # noqa: E402
-
-from main import CyberSecApp  # noqa: E402
-from src.i18n import I18N  # noqa: E402
 
 LANGUAGES = ("fr", "en", "ar")
 PAGES = (
@@ -41,7 +38,30 @@ def parse_args(argv=None):
         "--out", default="docs/screenshots", type=Path,
         help="Dossier de sortie (défaut : docs/screenshots).",
     )
+    parser.add_argument(
+        "--native", action="store_true",
+        help="Utiliser la plateforme graphique système (emoji en couleur).",
+    )
     return parser.parse_args(argv)
+
+
+def configure_platform(native=False):
+    """Choisit la plateforme Qt avant tout import PySide6."""
+    if native:
+        if sys.platform == "win32":
+            os.environ["QT_QPA_PLATFORM"] = "windows"
+        elif sys.platform == "darwin":
+            os.environ["QT_QPA_PLATFORM"] = "cocoa"
+        elif os.environ.get("WAYLAND_DISPLAY"):
+            os.environ.setdefault("QT_QPA_PLATFORM", "wayland")
+        elif os.environ.get("DISPLAY"):
+            os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
+        else:
+            raise SystemExit(
+                "Aucun affichage détecté : retirez --native pour le mode offscreen."
+            )
+    else:
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 
 def normalize_pages(raw):
@@ -59,6 +79,8 @@ def normalize_pages(raw):
 
 def capture_page(app, window, page, lang, out_dir):
     """Reconstruit l'UI dans ``lang`` puis enregistre ``page`` en PNG."""
+    from src.i18n import I18N  # import différé : la langue est configurée avant
+
     window.lang_combo.blockSignals(True)
     window.lang_combo.setCurrentIndex(LANGUAGES.index(lang))
     window.lang_combo.blockSignals(False)
@@ -69,7 +91,11 @@ def capture_page(app, window, page, lang, out_dir):
     target = out_dir / f"{page}-{lang}.png"
     if not window.grab().save(str(target), "PNG"):
         raise RuntimeError(f"Capture impossible : {target}")
-    print(target.relative_to(ROOT).as_posix())
+    try:
+        shown = target.relative_to(ROOT).as_posix()
+    except ValueError:
+        shown = str(target)
+    print(shown)
 
 
 def main(argv=None):
@@ -77,6 +103,11 @@ def main(argv=None):
     pages = normalize_pages(args.pages)
     out_dir = args.out if args.out.is_absolute() else ROOT / args.out
     out_dir.mkdir(parents=True, exist_ok=True)
+    configure_platform(args.native)
+
+    # Imports Qt différés : la plateforme doit être choisie avant ceux-ci.
+    from PySide6.QtWidgets import QApplication
+    from main import CyberSecApp
 
     app = QApplication.instance() or QApplication([])
     window = CyberSecApp()
