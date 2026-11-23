@@ -6,6 +6,10 @@ y compris en CI, mais les emoji y sont rendus en monochrome.
 Avec ``--native``, la plateforme graphique du système est utilisée afin
 d'obtenir les emoji en couleur. Un affichage est alors nécessaire.
 
+Les identifiants de la machine (nom d'hôte, processeur) sont remplacés par
+des valeurs factices : les captures peuvent donc être publiées sans exposer
+d'informations personnelles. ``--real-data`` désactive cette anonymisation.
+
 Exemples :
     python tools/screenshots.py
     python tools/screenshots.py --native
@@ -15,7 +19,10 @@ Exemples :
 
 import argparse
 import os
+import platform
+import socket
 import sys
+from contextlib import contextmanager, nullcontext
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +31,9 @@ if str(ROOT) not in sys.path:
 
 LANGUAGES = ("fr", "en", "ar")
 THEMES = ("dark", "light")
+DEMO_NODE = "DEMO-PC"
+DEMO_PROCESSOR = "Synthetic CPU (demo)"
+DEMO_HOSTNAME = "demo.local"
 PAGES = (
     "dashboard", "passwords", "strength", "hashing", "files",
     "scanner", "base64", "network", "logs",
@@ -49,7 +59,29 @@ def parse_args(argv=None):
         "--native", action="store_true",
         help="Utiliser la plateforme graphique système (emoji en couleur).",
     )
+    parser.add_argument(
+        "--real-data", action="store_true",
+        help="Afficher les vrais identifiants machine (déconseillé pour la doc).",
+    )
     return parser.parse_args(argv)
+
+
+@contextmanager
+def anonymized_system_info():
+    """Remplace temporairement les identifiants machine par des valeurs factices."""
+    attributes = (
+        (platform, "node", lambda: DEMO_NODE),
+        (platform, "processor", lambda: DEMO_PROCESSOR),
+        (socket, "gethostname", lambda: DEMO_HOSTNAME),
+    )
+    originals = [(module, name, getattr(module, name)) for module, name, _ in attributes]
+    for module, name, fake in attributes:
+        setattr(module, name, fake)
+    try:
+        yield
+    finally:
+        for module, name, value in originals:
+            setattr(module, name, value)
 
 
 def configure_platform(native=False):
@@ -121,22 +153,24 @@ def main(argv=None):
     from PySide6.QtWidgets import QApplication
     from main import CyberSecApp
 
-    app = QApplication.instance() or QApplication([])
-    window = CyberSecApp()
-    window.resize(1280, 820)
-    window.show()
-    app.processEvents()
-    themes = THEMES if args.theme == "both" else (args.theme,)
-    try:
-        for page in pages:
-            for lang in LANGUAGES:
-                for theme in themes:
-                    capture_page(app, window, page, lang, theme, out_dir)
-    finally:
-        window._shutdown()
-        window.hide()
-        window.deleteLater()
+    context = nullcontext() if args.real_data else anonymized_system_info()
+    with context:
+        app = QApplication.instance() or QApplication([])
+        window = CyberSecApp()
+        window.resize(1280, 820)
+        window.show()
         app.processEvents()
+        themes = THEMES if args.theme == "both" else (args.theme,)
+        try:
+            for page in pages:
+                for lang in LANGUAGES:
+                    for theme in themes:
+                        capture_page(app, window, page, lang, theme, out_dir)
+        finally:
+            window._shutdown()
+            window.hide()
+            window.deleteLater()
+            app.processEvents()
 
 
 if __name__ == "__main__":

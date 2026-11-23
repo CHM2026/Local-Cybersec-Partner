@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-31%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-33%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > اللغات: [Français](README.md) · [English](README.en.md) · **العربية**
 
@@ -127,7 +127,7 @@ python tools/screenshots.py --native --theme light
 python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
 ```
 
-يُنشئ السكربت `docs/screenshots/<page>-<language>.png` للفرنسية والإنجليزية والعربية. افتراضياً يعمل في وضع `offscreen` (بدون نافذة، مثالي لـ CI)، لكن الرموز التعبيرية تظهر بالأبيض والأسود.
+يُنشئ السكربت `docs/screenshots/<page>-<language>-<theme>.png` للفرنسية والإنجليزية والعربية، بالسمة الداكنة والفاتحة. افتراضياً يعمل في وضع `offscreen` (بدون نافذة، مثالي لـ CI)، لكن الرموز التعبيرية تظهر بالأبيض والأسود.
 
 للحصول على **رموز تعبيرية ملوّنة**، أضف `--native` (يتطلب وجود شاشة):
 
@@ -136,6 +136,8 @@ python tools/screenshots.py --native
 ```
 
 الصور المعروضة أعلاه أُنشئت باستخدام `--native`. على Windows استخدم `.\.venv\Scripts\python.exe tools\screenshots.py --native` عند الحاجة.
+
+**الخصوصية:** يتم استبدال اسم الجهاز والمعالج بـ `DEMO-PC` و `Synthetic CPU (demo)`، لذا يمكن نشر اللقطات دون بيانات شخصية. الخيار `--real-data` يوقف هذا التمويه (للاستخدام المحلي فقط). تجنّب التقاط صفحة **الشبكة** عناوين IP حقيقية.
 
 ## البنية
 
