@@ -176,6 +176,10 @@ python -m pip install "git+https://github.com/CHM2026/Local-Cybersec-Partner.git
 cybersec-dashboard
 ```
 
+Sur Windows, utiliser `py -3.15` à la place de `python` si nécessaire. Si la
+commande `cybersec-dashboard` n’est pas reconnue, `py -3.15 -m main` fonctionne
+sans configuration (voir la section « Lancement » du README).
+
 ## 5. Annulation (uniquement avant diffusion large)
 
 ```bash

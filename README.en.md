@@ -45,6 +45,8 @@ For development (tests included), replace `requirements.txt` with `requirements.
 
 ## Running
 
+### From the repository (development)
+
 ```powershell
 # Windows
 .\.venv\Scripts\python.exe main.py
@@ -55,11 +57,28 @@ For development (tests included), replace `requirements.txt` with `requirements.
 ./.venv/bin/python main.py
 ```
 
-If the project was installed with `pip install -e .`:
+### After a pip install (end user)
+
+Any pip installation of the package creates the **`cybersec-dashboard`** command,
+whether from `pip install -e .`, the Release wheel or the Git tag:
 
 ```bash
 cybersec-dashboard
 ```
+
+**Windows — "not recognized"?** Python's `Scripts` folder is missing from `PATH`.
+Two options:
+
+- no configuration needed: `py -3.15 -m main`
+- or add it once for all (then **restart PowerShell**):
+
+```powershell
+$p = "$env:LOCALAPPDATA\Python\pythoncore-3.15-64\Scripts"
+$old = [Environment]::GetEnvironmentVariable("Path", "User")
+[Environment]::SetEnvironmentVariable("Path", "$old;$p", "User")
+```
+
+Adjust `3.15-64` if Python is installed elsewhere on your machine.
 
 ## Modules
 

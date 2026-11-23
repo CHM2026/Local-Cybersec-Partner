@@ -45,6 +45,8 @@ python3 -m venv .venv
 
 ## التشغيل
 
+### من المستودع (للتطوير)
+
 ```powershell
 # Windows
 .\.venv\Scripts\python.exe main.py
@@ -55,11 +57,28 @@ python3 -m venv .venv
 ./.venv/bin/python main.py
 ```
 
-إذا تم تثبيت المشروع باستخدام `pip install -e .`:
+### بعد التثبيت عبر pip (للمستخدم النهائي)
+
+أي تثبيت للحزمة عبر pip ينشئ الأمر **`cybersec-dashboard`**، سواء من
+`pip install -e .` أو من ملف wheel التابع للإصدار أو من وسم Git :
 
 ```bash
 cybersec-dashboard
 ```
+
+**ويندوز — « الأمر غير معروف »؟** مجلد `Scripts` الخاص ببايثون غير موجود في
+`PATH`. حلّان :
+
+- بدون أي إعداد : `py -3.15 -m main`
+- أو أضفه مرة واحدة نهائيًا (ثم **أعد فتح PowerShell**) :
+
+```powershell
+$p = "$env:LOCALAPPDATA\Python\pythoncore-3.15-64\Scripts"
+$old = [Environment]::GetEnvironmentVariable("Path", "User")
+[Environment]::SetEnvironmentVariable("Path", "$old;$p", "User")
+```
+
+اضبط `3.15-64` إذا كانت بايثون مثبتة في مكان آخر على جهازك.
 
 ## الوحدات
 

@@ -25,6 +25,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   files d’attente prolongées ; délai maximal de 20 min par job.
 - `README.ar.md` : badges (libellés et textes alternatifs) en caractères latins,
   le rendu RTL de l’arabe dans les badges shields.io étant incorrect sur GitHub.
+- README FR/EN/AR : section « Lancement » clarifiée pour l’utilisateur final
+  (commande créée par pip, correctif du `PATH` Windows et solution de repli
+  `py -3.15 -m main`) ; runbook et changelog alignés.
 
 ## [1.0.0] - 2026-11-23
 
@@ -73,3 +76,7 @@ interface FR/EN/AR, thèmes sombre et clair.
 pip install "git+https://github.com/CHM2026/Local-Cybersec-Partner.git@v1.0.0"
 cybersec-dashboard
 ```
+
+Sur Windows, si `cybersec-dashboard` n’est pas reconnu, utiliser
+`py -3.15 -m main` (sans configuration) ou ajouter le dossier `Scripts` de
+Python au `PATH` — voir la section « Lancement » des README.
