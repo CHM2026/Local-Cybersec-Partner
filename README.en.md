@@ -80,6 +80,22 @@ $old = [Environment]::GetEnvironmentVariable("Path", "User")
 
 Adjust `3.15-64` if Python is installed elsewhere on your machine.
 
+## Uninstalling
+
+```powershell
+# Windows (global Python 3.15)
+py -3.15 -m pip uninstall local-cybersec-partner
+```
+
+```bash
+# macOS / Linux
+python3 -m pip uninstall local-cybersec-partner
+```
+
+Use the **package name** (`local-cybersec-partner`), not the command name
+(`cybersec-dashboard`). pip also removes the command from the `Scripts` folder.
+Your language and theme preferences remain saved.
+
 ## Modules
 
 | Module | Description |

@@ -80,6 +80,22 @@ $old = [Environment]::GetEnvironmentVariable("Path", "User")
 
 اضبط `3.15-64` إذا كانت بايثون مثبتة في مكان آخر على جهازك.
 
+## إلغاء التثبيت
+
+```powershell
+# ويندوز (بايثون 3.15 العام)
+py -3.15 -m pip uninstall local-cybersec-partner
+```
+
+```bash
+# macOS / Linux
+python3 -m pip uninstall local-cybersec-partner
+```
+
+استخدم **اسم الحزمة** (`local-cybersec-partner`) وليس اسم الأمر
+(`cybersec-dashboard`). يقوم pip أيضًا بإزالة الأمر من مجلد `Scripts`.
+تبقى تفضيلات اللغة والسمة محفوظة لديك.
+
 ## الوحدات
 
 | الوحدة | الوصف |
