@@ -10,6 +10,17 @@ from main import CyberSecApp, FileHashWorker, PingWorker, PortScanWorker
 from src.constants import APP_VERSION
 
 
+def test_app_version_matches_pyproject():
+    """Garde l'interface et le paquet sur le même numéro de version."""
+    import tomllib
+    from pathlib import Path
+
+    from src.constants import APP_VERSION
+
+    data = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+    assert APP_VERSION == data["project"]["version"]
+
+
 def test_version_label_uses_pyside6(window):
     labels = [lbl.text() for lbl in window.sidebar.findChildren(type(window._label("")))]
     assert any(f"v{APP_VERSION}" in t and "PySide6" in t for t in labels)

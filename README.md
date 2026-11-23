@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-33%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > Langues : **Français** · [English](README.en.md) · [العربية](README.ar.md)
 
@@ -151,3 +151,9 @@ requirements.txt     Dépendance d'exécution
 requirements.dev.txt Dépendances de développement
 pyproject.toml       Métadonnées, script d'entrée, configuration pytest
 ```
+
+## Licence et publication
+
+Distribué sous licence [MIT](LICENSE). Le journal des versions est dans
+[CHANGELOG.md](CHANGELOG.md) et la procédure de diffusion du tag `v1.0.0` dans
+[docs/RELEASE.md](docs/RELEASE.md).
