@@ -132,17 +132,23 @@ class PingWorker(QThread):
         # avec capture_output + text=True, Python la décode dans un thread
         # interne et échoue sous Windows quand elle utilise la page de code
         # OEM (UnicodeDecodeError), même si le ping réussit.
-        options = {
-            "stdout": subprocess.DEVNULL,
-            "stderr": subprocess.DEVNULL,
-            "timeout": 12,
-        }
-        if windows:
-            # Évite l'ouverture d'une console fugace quand l'app est lancée
-            # via pythonw / un raccourci sans fenêtre.
-            options["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        # Les arguments sont explicites (pas de **kwargs) pour que Pylance
+        # puisse choisir la bonne surcharge de subprocess.run().
+        command = ["ping", param, "4", self.host]
         try:
-            r = subprocess.run(["ping", param, "4", self.host], **options)
+            if windows:
+                # Évite l'ouverture d'une console fugace quand l'app est lancée
+                # via pythonw / un raccourci sans fenêtre.
+                r = subprocess.run(
+                    command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    timeout=12,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                )
+            else:
+                r = subprocess.run(
+                    command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    timeout=12,
+                )
             self.finished_ping.emit(r.returncode == 0, "")
         except Exception as e:
             self.finished_ping.emit(False, str(e))
