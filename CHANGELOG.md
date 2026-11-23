@@ -6,7 +6,17 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 
 ## [Non publié]
 
-_(Rien pour le moment.)_
+### Ajouté
+- Badge de **release** et badge de **plateformes** dans les README FR/EN/AR.
+- Workflow `release.yml` : le wheel `py3-none-any` est construit puis joint
+  automatiquement à la Release dès sa publication (ou à la demande pour un tag
+  déjà publié, via *Actions → Release wheel → Run workflow*).
+- Tests CI étendus à **macOS et Windows** en plus d’Ubuntu (Python 3.15).
+
+### Modifié
+- `requirements.dev.txt` inclut `build` : construction du paquet possible en
+  local avec `python -m build --wheel`.
+- Runbook `docs/RELEASE.md` mis à jour (attachement automatique du wheel).
 
 ## [1.0.0] - 2026-11-23
 

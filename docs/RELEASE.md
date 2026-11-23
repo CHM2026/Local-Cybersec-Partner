@@ -10,14 +10,14 @@ volontairement, dans l’ordre indiqué.
 | --- | --- |
 | Branche | `main`, synchronisée avec `origin/main`, arbre de travail propre |
 | Dernier commit avant préparation | `9c7d58d` — captures anonymisées |
-| CI GitHub Actions | run **#17 = success** sur `9c7d58d`, aucun avertissement Node 20 |
+| CI GitHub Actions | matrice **Ubuntu / macOS / Windows**, Python 3.15, aucun avertissement Node 20 |
 | Tests locaux | **34 passed** en mode Qt `offscreen` |
 | Internationalisation | 240 clés, triplet FR/EN/AR complet pour chacune |
 | Version | `pyproject.toml` = `1.0.0`, `APP_VERSION` aligné sur `1.0.0` |
-| Packaging | wheel `py3-none-any` généré avec succès (`pip wheel . --no-deps`) |
+| Packaging | wheel `py3-none-any` construit et joint par le workflow `Release wheel` |
 | Licence | MIT (`LICENSE`) |
 | Journal des changements | `CHANGELOG.md` (section `1.0.0`) |
-| Tags / Releases GitHub | **aucun** ; `v1.0.0` sera le premier |
+| Tags / Releases GitHub | `v1.0.0` publié et marqué *Latest* |
 | Visibilité du dépôt | public |
 | Captures | 6 PNG anonymisés (`DEMO-PC`, CPU factice) |
 
@@ -84,20 +84,28 @@ Résultat attendu : `34 passed` et `## main...origin/main`.
 Ouvrir <https://github.com/CHM2026/Local-Cybersec-Partner/actions> et vérifier
 que le dernier run sur `main` est **success**. Ne pas publier si la CI est rouge.
 
-### 4.4 Construire le paquet (vérification optionnelle)
+### 4.4 Construire le paquet (automatique)
+
+Le workflow **`Release wheel`** (`.github/workflows/release.yml`) construit le
+wheel et le joint à la Release dès sa publication. Rien à faire manuellement.
+
+Pour vérifier le paquet en local avant de publier :
 
 ```powershell
 # Windows
-.\.venv\Scripts\python.exe -m pip wheel . --no-deps -w dist
+.\.venv\Scripts\python.exe -m pip install -r requirements.dev.txt
+.\.venv\Scripts\python.exe -m build --wheel
 ```
 
 ```bash
 # macOS / Linux
-./.venv/bin/python -m pip wheel . --no-deps -w dist
+./.venv/bin/python -m pip install -r requirements.dev.txt
+./.venv/bin/python -m build --wheel
 ```
 
-Le dossier `dist/` est ignoré par Git : le wheel ne sera pas commité. Vous
-pourrez le joindre à la Release GitHub si vous le souhaitez.
+Le dossier `dist/` est ignoré par Git : le wheel n’est jamais commité. Le paquet
+est pur Python (`py3-none-any`) : un seul wheel fonctionne sur Windows, macOS et
+Linux.
 
 ### 4.5 Créer le tag annoté
 
@@ -125,16 +133,26 @@ Alternative équivalente : `git push --follow-tags origin main`.
 1. Ouvrir <https://github.com/CHM2026/Local-Cybersec-Partner/releases/new?tag=v1.0.0>.
 2. Titre : `v1.0.0 — CyberSec Dashboard`.
 3. Description : copier la section `[1.0.0]` de `CHANGELOG.md`.
-4. Cocher **Set as a latest release**.
-5. Optionnel : joindre le wheel `dist/local_cybersec_partner-1.0.0-py3-none-any.whl`.
-6. Cliquer sur **Publish release**.
+4. Label : **None** (le choix *Pre-release* est réservé aux bêta / RC).
+5. Cliquer sur **Publish release**.
+
+Le wheel est ajouté **automatiquement** par le workflow `Release wheel` quelques
+secondes après la publication : il n’y a pas d’attachement manuel à faire.
+
+Pour un tag déjà publié avant la mise en place du workflow (cas de `v1.0.0`),
+déclencher le workflow à la main :
+
+1. Onglet **Actions** → workflow **Release wheel** → **Run workflow**.
+2. Renseigner le champ `tag` avec `v1.0.0`.
+3. Le wheel est construit depuis ce tag et joint à la Release existante.
 
 Note : l’utilitaire `gh` n’est pas installé sur la machine de préparation ; la
 procédure ci-dessus utilise donc l’interface web. Si `gh` est installé plus
 tard, l’équivalent est :
 
 ```bash
-gh release create v1.0.0 --title "v1.0.0 — CyberSec Dashboard" --notes-file CHANGELOG.md dist/*.whl
+gh release create v1.0.0 --title "v1.0.0 — CyberSec Dashboard" --notes-file CHANGELOG.md
+gh workflow run release.yml -f tag=v1.0.0
 ```
 
 ### 4.8 Vérifications après publication
@@ -149,6 +167,8 @@ Vérifier aussi :
 
 - la page <https://github.com/CHM2026/Local-Cybersec-Partner/releases/tag/v1.0.0> ;
 - le badge de CI du README (il doit rester *passing*) ;
+- le badge de release (il doit afficher `v1.0.0`) ;
+- le run **Release wheel** au vert et le wheel présent dans **Assets** ;
 - l’installation depuis le tag dans un environnement neuf (optionnel) :
 
 ```bash
