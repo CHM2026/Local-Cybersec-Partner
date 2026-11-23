@@ -128,7 +128,15 @@ class PingWorker(QThread):
     def run(self):
         windows = platform.system().lower() == "windows"
         param = "-n" if windows else "-c"
-        options = {"capture_output": True, "text": True, "timeout": 12}
+        # La sortie du ping n'est pas affichée. On la redirige vers DEVNULL :
+        # avec capture_output + text=True, Python la décode dans un thread
+        # interne et échoue sous Windows quand elle utilise la page de code
+        # OEM (UnicodeDecodeError), même si le ping réussit.
+        options = {
+            "stdout": subprocess.DEVNULL,
+            "stderr": subprocess.DEVNULL,
+            "timeout": 12,
+        }
         if windows:
             # Évite l'ouverture d'une console fugace quand l'app est lancée
             # via pythonw / un raccourci sans fenêtre.

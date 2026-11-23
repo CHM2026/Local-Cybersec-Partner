@@ -1,10 +1,12 @@
 """Tests de non-régression sur les corrections prioritaires."""
 
 import hashlib
+import subprocess
+from types import SimpleNamespace
 
 from PySide6.QtWidgets import QMessageBox
 
-from main import CyberSecApp, FileHashWorker, PortScanWorker
+from main import CyberSecApp, FileHashWorker, PingWorker, PortScanWorker
 from src.constants import APP_VERSION
 
 
@@ -134,6 +136,30 @@ def test_screenshot_button_saves_png_and_logs(window, monkeypatch, tmp_path):
     assert target.is_file()
     assert len(window.log_entries) == before + 1
     assert window.log_entries[0]["action"] == "log.capture"
+
+
+def test_ping_worker_does_not_capture_output(qapp, monkeypatch):
+    """Aucun décodage de la sortie : évite l'UnicodeDecodeError OEM sous Windows."""
+    calls = []
+
+    def fake_run(args, **kwargs):
+        calls.append((args, kwargs))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    emitted = []
+    worker = PingWorker("127.0.0.1")
+    worker.finished_ping.connect(lambda ok, err: emitted.append((ok, err)))
+
+    worker.run()
+
+    assert emitted == [(True, "")]
+    args, kwargs = calls[0]
+    assert args[1] in ("-n", "-c")
+    assert kwargs["stdout"] is subprocess.DEVNULL
+    assert kwargs["stderr"] is subprocess.DEVNULL
+    assert "text" not in kwargs
+    assert "capture_output" not in kwargs
 
 
 def test_theme_switch_updates_palette_and_setting(window):
