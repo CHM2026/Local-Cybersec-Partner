@@ -1,11 +1,11 @@
 # لوحة تحكم الأمان السيبراني
 
-[![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
-[![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
-[![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
-[![Release](https://img.shields.io/github/v/release/CHM2026/Local-Cybersec-Partner.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
-[![المنصات](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![حالة البناء](https://img.shields.io/github/actions/workflow/status/CHM2026/Local-Cybersec-Partner/python-app.yml?branch=main&label=%D8%AD%D8%A7%D9%84%D8%A9%20%D8%A7%D9%84%D8%A8%D9%86%D8%A7%D8%A1)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![بايثون 3.15+](https://img.shields.io/badge/%D8%A8%D8%A7%D9%8A%D8%AB%D9%88%D9%86-3.15%2B-blue.svg)](https://www.python.org/downloads/)
+[![كيوت PySide6](https://img.shields.io/badge/%D9%83%D9%8A%D9%88%D8%AA-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
+[![الاختبارات](https://img.shields.io/badge/%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA-34%20%D9%86%D8%A7%D8%AC%D8%AD%D8%A9-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![الإصدار](https://img.shields.io/github/v/release/CHM2026/Local-Cybersec-Partner?label=%D8%A7%D9%84%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
+[![المنصات](https://img.shields.io/badge/%D8%A7%D9%84%D9%85%D9%86%D8%B5%D8%A7%D8%AA-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > اللغات: [Français](README.md) · [English](README.en.md) · **العربية**
 
