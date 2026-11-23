@@ -18,6 +18,12 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   local avec `python -m build --wheel`.
 - Runbook `docs/RELEASE.md` mis à jour (attachement automatique du wheel).
 
+### Corrigé
+- Workflow `Release wheel` : `build` est installé explicitement, afin de pouvoir
+  construire le wheel d’un tag antérieur à son ajout dans `requirements.dev.txt`.
+- CI macOS : bascule sur `macos-15-intel`, les runners macOS arm64 subissant des
+  files d’attente prolongées ; délai maximal de 20 min par job.
+
 ## [1.0.0] - 2026-11-23
 
 Première version stable publique de **CyberSec Dashboard** — Python 3.15+, PySide6,
