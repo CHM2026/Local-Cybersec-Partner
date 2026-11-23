@@ -23,9 +23,8 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   construire le wheel d’un tag antérieur à son ajout dans `requirements.dev.txt`.
 - CI macOS : bascule sur `macos-15-intel`, les runners macOS arm64 subissant des
   files d’attente prolongées ; délai maximal de 20 min par job.
-- `README.ar.md` : libellés des badges en caractères latins, le rendu RTL de
-  l’arabe dans les badges shields.io étant incorrect sur GitHub ; les textes
-  alternatifs restent en arabe.
+- `README.ar.md` : badges (libellés et textes alternatifs) en caractères latins,
+  le rendu RTL de l’arabe dans les badges shields.io étant incorrect sur GitHub.
 
 ## [1.0.0] - 2026-11-23
 
