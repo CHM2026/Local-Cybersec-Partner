@@ -117,3 +117,20 @@ def test_sensitive_data_is_wiped(window):
     assert not window._hashes_data
     assert not window._current_file_hash
     assert not window._clipboard_owned
+
+
+def test_screenshot_button_saves_png_and_logs(window, monkeypatch, tmp_path):
+    from PySide6.QtWidgets import QFileDialog
+
+    target = tmp_path / "capture.png"
+    monkeypatch.setattr(
+        QFileDialog, "getSaveFileName",
+        lambda *args, **kwargs: (str(target), ""),
+    )
+    before = len(window.log_entries)
+
+    window._capture_screenshot()
+
+    assert target.is_file()
+    assert len(window.log_entries) == before + 1
+    assert window.log_entries[0]["action"] == "log.capture"

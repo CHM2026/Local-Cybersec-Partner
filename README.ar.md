@@ -3,36 +3,53 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-21%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-26%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > اللغات: [Français](README.md) · [English](README.en.md) · **العربية**
 
 لوحة تحكم محلية تجمع عدة أدوات الأمان السيبراني، مبنية باستخدام **PySide6**.
 
+## معاينة
+
+![لوحة التحكم بالعربية](docs/screenshots/dashboard-ar.png)
+
 > ⚠️ **المتطلب: Python 3.15 أو أحدث.** يستخدم الكود صيغة `lazy import` (PEP 810) والسلاسل النصية المتداخلة f-strings (PEP 701). على Python ≤ 3.14 يفشل التشغيل مع ظهور `SyntaxError`.
 
 ## التثبيت
 
+مطلوب Python 3.15 أو أحدث. حسب نظام التشغيل:
+
 ```powershell
+# Windows (PowerShell)
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-للتطوير (بما في ذلك الاختبارات):
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.dev.txt
+```bash
+# macOS / Linux
+python3 -m venv .venv
+./.venv/bin/python -m pip install -r requirements.txt
 ```
+
+على Windows، إذا كان `python` يشير إلى إصدار أقدم، استخدم `py -3.15` بدلاً منه.
+
+للتطوير (بما في ذلك الاختبارات)، استبدل `requirements.txt` بـ `requirements.dev.txt` في أمر التثبيت أعلاه.
 
 ## التشغيل
 
 ```powershell
+# Windows
 .\.venv\Scripts\python.exe main.py
+```
+
+```bash
+# macOS / Linux
+./.venv/bin/python main.py
 ```
 
 إذا تم تثبيت المشروع باستخدام `pip install -e .`:
 
-```powershell
+```bash
 cybersec-dashboard
 ```
 
@@ -73,10 +90,28 @@ cybersec-dashboard
 ## الاختبارات
 
 ```powershell
+# Windows
 .\.venv\Scripts\python.exe -m pytest
 ```
 
+```bash
+# macOS / Linux
+./.venv/bin/python -m pytest
+```
+
 تُشغّل الاختبارات في وضع Qt `offscreen`: لا تُفتح أي نافذة.
+
+## لقطات الشاشة
+
+- **من التطبيق**: انقر على **📸 لقطة شاشة** في الشريط الجانبي، ثم اختر مسار ملف PNG.
+- **من الطرفية** (مثالي للتوثيق و CI):
+
+```bash
+python tools/screenshots.py
+python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+```
+
+يُنشئ السكربت `docs/screenshots/<page>-<language>.png` للفرنسية والإنجليزية والعربية دون فتح أي نافذة (`QT_QPA_PLATFORM=offscreen`). على Windows استخدم `.\.venv\Scripts\python.exe tools\screenshots.py` عند الحاجة.
 
 ## البنية
 
@@ -85,6 +120,7 @@ main.py              التطبيق (النافذة، الصفحات، خيوط 
 src/constants.py     الألوان، جدول المنافذ، اسم التطبيق وإصداره
 src/i18n.py          قواميس FR/EN/AR، محرك الترجمة، محدد RTL
 tests/               الاختبارات الآلية
+tools/screenshots.py مُولّد لقطات FR/EN/AR (بدون نافذة)
 requirements.txt     تبعية التشغيل
 requirements.dev.txt تبعيات التطوير
 pyproject.toml       البيانات الوصفية، نقطة الدخول، إعداد pytest

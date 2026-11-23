@@ -46,6 +46,7 @@ STRINGS = {
     "nav.logs": ("📋  Journal", "📋  Log", "📋  السجل"),
     "nav.quit": ("🚪  Quitter", "🚪  Quit", "🚪  خروج"),
     "nav.language": ("🌐  Langue :", "🌐  Language:", "🌐  اللغة:"),
+    "nav.capture": ("📸  Capture d'écran", "📸  Screenshot", "📸  لقطة شاشة"),
 
     # ── Tableau de bord ────────────────────────────────────────────────────
     "page.dashboard.title": ("Tableau de Bord", "Dashboard", "لوحة التحكم"),
@@ -327,6 +328,13 @@ STRINGS = {
     "msg.result_copied": ("Résultat copié dans le presse-papiers.", "Result copied to clipboard.", "تم نسخ النتيجة إلى الحافظة."),
     "msg.file_hash_copied": ("Hash copié dans le presse-papiers.", "Hash copied to clipboard.", "تم نسخ التجزئة إلى الحافظة."),
     "msg.password_copied": ("Mot(s) de passe copié(s) dans le presse-papiers.", "Password(s) copied to clipboard.", "تم نسخ كلمة المرور (كلمات المرور) إلى الحافظة."),
+
+    # ── Capture d'écran ────────────────────────────────────────────────────
+    "capture.dialog_title": ("Enregistrer la capture", "Save screenshot", "حفظ لقطة الشاشة"),
+    "capture.filter": ("Images PNG (*.png)", "PNG images (*.png)", "صور PNG (*.png)"),
+    "capture.error": ("Impossible d'enregistrer la capture.", "Could not save the screenshot.", "تعذر حفظ لقطة الشاشة."),
+    "log.capture": ("Capture écran", "Screenshot", "لقطة شاشة"),
+    "log.capture.done": ("Capture enregistrée : {file}", "Screenshot saved: {file}", "تم حفظ لقطة الشاشة: {file}"),
 }
 
 

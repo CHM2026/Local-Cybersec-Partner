@@ -3,36 +3,53 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-21%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-26%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > Langues : **Français** · [English](README.en.md) · [العربية](README.ar.md)
 
 Tableau de bord local regroupant plusieurs utilitaires de cybersécurité, réalisé avec **PySide6**.
 
+## Aperçu
+
+![Tableau de bord en français](docs/screenshots/dashboard-fr.png)
+
 > ⚠️ **Prérequis : Python 3.15 ou supérieur.** Le code utilise la syntaxe `lazy import` (PEP 810) et les f-strings imbriquées (PEP 701). Sur Python ≤ 3.14, le lancement échoue avec un `SyntaxError`.
 
 ## Installation
 
+Python 3.15 ou supérieur est requis. Selon votre système :
+
 ```powershell
+# Windows (PowerShell)
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Pour le développement (tests inclus) :
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.dev.txt
+```bash
+# macOS / Linux
+python3 -m venv .venv
+./.venv/bin/python -m pip install -r requirements.txt
 ```
+
+Sur Windows, si `python` pointe vers une version antérieure, utilisez `py -3.15` à la place.
+
+Pour le développement (tests inclus), remplacez `requirements.txt` par `requirements.dev.txt` dans la commande d’installation.
 
 ## Lancement
 
 ```powershell
+# Windows
 .\.venv\Scripts\python.exe main.py
+```
+
+```bash
+# macOS / Linux
+./.venv/bin/python main.py
 ```
 
 Si le projet a été installé avec `pip install -e .` :
 
-```powershell
+```bash
 cybersec-dashboard
 ```
 
@@ -73,10 +90,28 @@ Pour ajouter ou corriger une traduction, éditez `src/i18n.py` : chaque clé du 
 ## Tests
 
 ```powershell
+# Windows
 .\.venv\Scripts\python.exe -m pytest
 ```
 
+```bash
+# macOS / Linux
+./.venv/bin/python -m pytest
+```
+
 Les tests s'exécutent en mode Qt `offscreen` : aucune fenêtre n'est ouverte.
+
+## Captures d'écran
+
+- **Depuis l’application** : cliquez sur **📸 Capture d'écran** dans la barre latérale, puis choisissez le fichier PNG de destination.
+- **Depuis le terminal** (idéal pour la documentation et la CI) :
+
+```bash
+python tools/screenshots.py
+python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+```
+
+Le script génère `docs/screenshots/<page>-<langue>.png` pour le français, l’anglais et l’arabe, sans ouvrir de fenêtre (`QT_QPA_PLATFORM=offscreen`). Sur Windows, utilisez `.\.venv\Scripts\python.exe tools\screenshots.py` si nécessaire.
 
 ## Structure
 
@@ -85,6 +120,7 @@ main.py              Application (fenêtre, pages, threads de travail)
 src/constants.py     Palette, table des ports, nom et version de l'app
 src/i18n.py          Dictionnaires FR/EN/AR, moteur de traduction, sélecteur RTL
 tests/               Tests automatisés
+tools/screenshots.py Générateur de captures FR/EN/AR (hors écran)
 requirements.txt     Dépendance d'exécution
 requirements.dev.txt Dépendances de développement
 pyproject.toml       Métadonnées, script d'entrée, configuration pytest

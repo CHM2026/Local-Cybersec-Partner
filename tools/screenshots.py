@@ -1,0 +1,98 @@
+"""Génère des captures PNG de l'application, sans fenêtre visible.
+
+Le mode Qt ``offscreen`` est activé avant tout import PySide6 afin que le
+script fonctionne de la même façon sur Windows, macOS et Linux (y compris en CI).
+
+Exemples :
+    python tools/screenshots.py
+    python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
+"""
+
+import argparse
+import os
+import sys
+from pathlib import Path
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from PySide6.QtWidgets import QApplication  # noqa: E402
+
+from main import CyberSecApp  # noqa: E402
+from src.i18n import I18N  # noqa: E402
+
+LANGUAGES = ("fr", "en", "ar")
+PAGES = (
+    "dashboard", "passwords", "strength", "hashing", "files",
+    "scanner", "base64", "network", "logs",
+)
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--pages", default="dashboard",
+        help="Pages à capturer, séparées par des virgules (défaut : dashboard).",
+    )
+    parser.add_argument(
+        "--out", default="docs/screenshots", type=Path,
+        help="Dossier de sortie (défaut : docs/screenshots).",
+    )
+    return parser.parse_args(argv)
+
+
+def normalize_pages(raw):
+    """Valide et déduplique la liste de pages demandée sur la ligne de commande."""
+    pages = []
+    for item in raw.split(","):
+        page = item.strip()
+        if page and page not in pages:
+            pages.append(page)
+    unknown = [page for page in pages if page not in PAGES]
+    if unknown:
+        raise SystemExit(f"Page(s) inconnue(s) : {', '.join(unknown)}")
+    return pages or ["dashboard"]
+
+
+def capture_page(app, window, page, lang, out_dir):
+    """Reconstruit l'UI dans ``lang`` puis enregistre ``page`` en PNG."""
+    window.lang_combo.blockSignals(True)
+    window.lang_combo.setCurrentIndex(LANGUAGES.index(lang))
+    window.lang_combo.blockSignals(False)
+    I18N.set_language(lang)
+    window._rebuild_ui(page)
+    app.processEvents()
+
+    target = out_dir / f"{page}-{lang}.png"
+    if not window.grab().save(str(target), "PNG"):
+        raise RuntimeError(f"Capture impossible : {target}")
+    print(target.relative_to(ROOT).as_posix())
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    pages = normalize_pages(args.pages)
+    out_dir = args.out if args.out.is_absolute() else ROOT / args.out
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    app = QApplication.instance() or QApplication([])
+    window = CyberSecApp()
+    window.resize(1280, 820)
+    window.show()
+    app.processEvents()
+    try:
+        for page in pages:
+            for lang in LANGUAGES:
+                capture_page(app, window, page, lang, out_dir)
+    finally:
+        window._shutdown()
+        window.hide()
+        window.deleteLater()
+        app.processEvents()
+
+
+if __name__ == "__main__":
+    main()

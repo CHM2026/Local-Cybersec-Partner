@@ -113,10 +113,15 @@ class PingWorker(QThread):
         self.host = host
 
     def run(self):
-        param = "-n" if platform.system().lower() == "windows" else "-c"
+        windows = platform.system().lower() == "windows"
+        param = "-n" if windows else "-c"
+        options = {"capture_output": True, "text": True, "timeout": 12}
+        if windows:
+            # Évite l'ouverture d'une console fugace quand l'app est lancée
+            # via pythonw / un raccourci sans fenêtre.
+            options["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         try:
-            r = subprocess.run(["ping", param, "4", self.host],
-                                capture_output=True, text=True, timeout=12)
+            r = subprocess.run(["ping", param, "4", self.host], **options)
             self.finished_ping.emit(r.returncode == 0, "")
         except Exception as e:
             self.finished_ping.emit(False, str(e))
@@ -467,6 +472,20 @@ class CyberSecApp(QMainWindow):
         lang_row.addWidget(self.lang_combo)
         sb.addLayout(lang_row)
 
+        # — Bouton de capture (PNG de la fenêtre courante) —
+        self.capture_btn = QPushButton(tr("nav.capture"))
+        self.capture_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.capture_btn.setFont(QFont(PALETTE["font_family"], 10))
+        self.capture_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color:{PALETTE["sidebar"]}; color:{PALETTE["accent"]};
+                border:none; text-align:start; padding:10px 20px;
+            }}
+            QPushButton:hover {{ background-color:{PALETTE["card"]}; color:{PALETTE["accent2"]}; }}
+        """)
+        self.capture_btn.clicked.connect(self._capture_screenshot)
+        sb.addWidget(self.capture_btn)
+
         line2 = QFrame(); line2.setFixedHeight(1); line2.setStyleSheet(f"background-color:{PALETTE["border"]};")
         sb.addWidget(line2)
         ver = self._label(f"v{APP_VERSION} (PySide6){tr('app.suffix')}", size=9, color=PALETTE["dim"])
@@ -614,6 +633,21 @@ class CyberSecApp(QMainWindow):
         args = entry.get("args", {})
         return (tr(action) if action in STRINGS else action,
                 tr(details, **args) if details in STRINGS else details)
+
+    def _capture_screenshot(self):
+        """Enregistre la fenêtre courante en PNG, sans dépendance externe."""
+        default_name = f"{APP_NAME.lower().replace(' ', '-')}-{I18N.language}.png"
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("capture.dialog_title"), default_name, tr("capture.filter"))
+        if not path:
+            return
+        if not path.lower().endswith(".png"):
+            path += ".png"
+        if self.grab().save(path, "PNG"):
+            self._log_action("log.capture", "log.capture.done",
+                             file=_esc(os.path.basename(path)))
+        else:
+            QMessageBox.warning(self, tr("capture.dialog_title"), tr("capture.error"))
 
     def _refresh_date(self):
         now_str = datetime.now().strftime("%d/%m/%Y  %H:%M:%S")
