@@ -252,7 +252,9 @@ dépose sur PyPI avec un **token API** stocké dans le secret GitHub
      `local-cybersec-partner` (moins de privilèges).
 3. Copier le token (`pypi-...`) et l'ajouter dans le dépôt GitHub :
    *Settings → Secrets and variables → Actions → New repository secret*,
-   nom exact **`PYPI_API_TOKEN`**. Le secret est masqué dans les logs.
+   nom exact **`PYPI_API_TOKEN`**. L'alias `CHM2026_token` est également accepté
+   par le workflow si c'est le nom donné au secret. Le secret est masqué dans
+   les logs.
 
 > **Pourquoi pas l'OIDC ?** Le *trusted publisher* a d'abord été essayé mais a
 > échoué avec `invalid-publisher` : le nom de dépôt saisi sur PyPI était en
