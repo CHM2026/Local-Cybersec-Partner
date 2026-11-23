@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-29%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > Langues : **Français** · [English](README.en.md) · [العربية](README.ar.md)
 
@@ -11,7 +11,13 @@ Tableau de bord local regroupant plusieurs utilitaires de cybersécurité, réal
 
 ## Aperçu
 
-![Tableau de bord en français](docs/screenshots/dashboard-fr.png)
+Sombre (thème historique) :
+
+![Tableau de bord en français — sombre](docs/screenshots/dashboard-fr-dark.png)
+
+Clair 2026 :
+
+![Tableau de bord en français — clair 2026](docs/screenshots/dashboard-fr-light.png)
 
 > ⚠️ **Prérequis : Python 3.15 ou supérieur.** Le code utilise la syntaxe `lazy import` (PEP 810) et les f-strings imbriquées (PEP 701). Sur Python ≤ 3.14, le lancement échoue avec un `SyntaxError`.
 
@@ -78,6 +84,15 @@ Le sélecteur **🌐 Langue** en bas de la sidebar permet de basculer entre **Fr
 
 Pour ajouter ou corriger une traduction, éditez `src/i18n.py` : chaque clé du dictionnaire `STRINGS` contient le triplet `(français, english, العربية)`.
 
+## Thèmes
+
+Deux palettes sont disponibles via le sélecteur **🎨 Thème** de la barre latérale :
+
+- **Sombre** : le thème cyber historique (fond `#0d1117`, accents vert/cyan).
+- **Clair 2026** : palette moderne sur fond clair `#f6f8fb`, accents bleu/cyan et typographie `Segoe UI`.
+
+Le choix est mémorisé (`QSettings`) et restauré au lancement. Le bouton **📸 Capture d'écran** enregistre le rendu courant en PNG.
+
 ## Sécurité et périmètre
 
 - Aucun mot de passe, fichier ou hash n'est envoyé à un service tiers : tout est traité localement.
@@ -108,6 +123,7 @@ Les tests s'exécutent en mode Qt `offscreen` : aucune fenêtre n'est ouverte.
 
 ```bash
 python tools/screenshots.py
+python tools/screenshots.py --native --theme light
 python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
 ```
 

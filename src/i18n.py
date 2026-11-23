@@ -46,6 +46,9 @@ STRINGS = {
     "nav.logs": ("📋  Journal", "📋  Log", "📋  السجل"),
     "nav.quit": ("🚪  Quitter", "🚪  Quit", "🚪  خروج"),
     "nav.language": ("🌐  Langue :", "🌐  Language:", "🌐  اللغة:"),
+    "nav.theme": ("🎨  Thème :", "🎨  Theme:", "🎨  السمة:"),
+    "theme.dark": ("Sombre", "Dark", "داكن"),
+    "theme.light": ("Clair 2026", "Light 2026", "فاتح 2026"),
     "nav.capture": ("📸  Capture d'écran", "📸  Screenshot", "📸  لقطة شاشة"),
 
     # ── Tableau de bord ────────────────────────────────────────────────────

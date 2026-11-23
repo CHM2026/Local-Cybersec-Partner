@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-29%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > اللغات: [Français](README.md) · [English](README.en.md) · **العربية**
 
@@ -11,7 +11,13 @@
 
 ## معاينة
 
-![لوحة التحكم بالعربية](docs/screenshots/dashboard-ar.png)
+داكن (السمة الأصلية):
+
+![لوحة التحكم بالعربية — داكنة](docs/screenshots/dashboard-ar-dark.png)
+
+فاتح 2026:
+
+![لوحة التحكم بالعربية — فاتحة 2026](docs/screenshots/dashboard-ar-light.png)
 
 > ⚠️ **المتطلب: Python 3.15 أو أحدث.** يستخدم الكود صيغة `lazy import` (PEP 810) والسلاسل النصية المتداخلة f-strings (PEP 701). على Python ≤ 3.14 يفشل التشغيل مع ظهور `SyntaxError`.
 
@@ -78,6 +84,15 @@ cybersec-dashboard
 
 لإضافة ترجمة أو تصحيحها، عدّل `src/i18n.py`: كل مفتاح في قاموس `STRINGS` يحتوي على الثلاثية `(français, english, العربية)`.
 
+## السمات
+
+تتوفر لوحتان عبر محدد **🎨 السمة** في الشريط الجانبي:
+
+- **داكن**: السمة السيبرانية الأصلية (خلفية `#0d1117`، ألوان أخضر/سماوي).
+- **فاتح 2026**: لوحة عصرية بخلفية فاتحة `#f6f8fb`، ألوان أزرق/سماوي وخط `Segoe UI`.
+
+يُحفظ الاختيار (`QSettings`) ويُستعاد عند التشغيل. زر **📸 لقطة شاشة** يحفظ العرض الحالي بصيغة PNG.
+
 ## الأمان والنطاق
 
 - لا تُرسل أي كلمة مرور أو ملف أو بصمة إلى خدمة خارجية: تُعالَج كل البيانات محليًا.
@@ -108,6 +123,7 @@ cybersec-dashboard
 
 ```bash
 python tools/screenshots.py
+python tools/screenshots.py --native --theme light
 python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
 ```
 

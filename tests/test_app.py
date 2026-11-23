@@ -134,3 +134,22 @@ def test_screenshot_button_saves_png_and_logs(window, monkeypatch, tmp_path):
     assert target.is_file()
     assert len(window.log_entries) == before + 1
     assert window.log_entries[0]["action"] == "log.capture"
+
+
+def test_theme_switch_updates_palette_and_setting(window):
+    from PySide6.QtCore import QSettings
+
+    from src.constants import PALETTE, current_theme
+
+    window.lang_combo.setCurrentIndex(0)
+    assert current_theme() == "dark"
+    assert window.theme_combo.itemText(1) == "Clair 2026"
+
+    window.theme_combo.setCurrentIndex(1)
+    assert current_theme() == "light"
+    assert PALETTE["bg"] == "#f6f8fb"
+    assert QSettings("CyberSecPartner", "CyberSecDashboard").value("theme") == "light"
+
+    window.theme_combo.setCurrentIndex(0)
+    assert current_theme() == "dark"
+    assert PALETTE["bg"] == "#0d1117"

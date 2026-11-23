@@ -10,7 +10,19 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 import pytest
+from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QApplication
+
+from src.constants import current_theme, set_theme
+
+
+@pytest.fixture(autouse=True)
+def restore_theme():
+    """Évite qu'un test laisse l'application dans un autre thème."""
+    previous = current_theme()
+    yield
+    set_theme(previous)
+    QSettings("CyberSecPartner", "CyberSecDashboard").setValue("theme", previous)
 
 
 @pytest.fixture(scope="session")

@@ -10,6 +10,7 @@ Exemples :
     python tools/screenshots.py
     python tools/screenshots.py --native
     python tools/screenshots.py --native --pages dashboard,scanner
+    python tools/screenshots.py --native --theme light
 """
 
 import argparse
@@ -22,6 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 LANGUAGES = ("fr", "en", "ar")
+THEMES = ("dark", "light")
 PAGES = (
     "dashboard", "passwords", "strength", "hashing", "files",
     "scanner", "base64", "network", "logs",
@@ -37,6 +39,10 @@ def parse_args(argv=None):
     parser.add_argument(
         "--out", default="docs/screenshots", type=Path,
         help="Dossier de sortie (défaut : docs/screenshots).",
+    )
+    parser.add_argument(
+        "--theme", choices=(*THEMES, "both"), default="both",
+        help="Thème à capturer (défaut : both).",
     )
     parser.add_argument(
         "--native", action="store_true",
@@ -77,18 +83,23 @@ def normalize_pages(raw):
     return pages or ["dashboard"]
 
 
-def capture_page(app, window, page, lang, out_dir):
-    """Reconstruit l'UI dans ``lang`` puis enregistre ``page`` en PNG."""
-    from src.i18n import I18N  # import différé : la langue est configurée avant
+def capture_page(app, window, page, lang, theme, out_dir):
+    """Reconstruit l'UI dans ``lang``/``theme`` puis enregistre ``page`` en PNG."""
+    from src.constants import set_theme
+    from src.i18n import I18N
 
     window.lang_combo.blockSignals(True)
     window.lang_combo.setCurrentIndex(LANGUAGES.index(lang))
     window.lang_combo.blockSignals(False)
+    window.theme_combo.blockSignals(True)
+    window.theme_combo.setCurrentIndex(THEMES.index(theme))
+    window.theme_combo.blockSignals(False)
     I18N.set_language(lang)
+    set_theme(theme)
     window._rebuild_ui(page)
     app.processEvents()
 
-    target = out_dir / f"{page}-{lang}.png"
+    target = out_dir / f"{page}-{lang}-{theme}.png"
     if not window.grab().save(str(target), "PNG"):
         raise RuntimeError(f"Capture impossible : {target}")
     try:
@@ -114,10 +125,12 @@ def main(argv=None):
     window.resize(1280, 820)
     window.show()
     app.processEvents()
+    themes = THEMES if args.theme == "both" else (args.theme,)
     try:
         for page in pages:
             for lang in LANGUAGES:
-                capture_page(app, window, page, lang, out_dir)
+                for theme in themes:
+                    capture_page(app, window, page, lang, theme, out_dir)
     finally:
         window._shutdown()
         window.hide()

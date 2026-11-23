@@ -21,7 +21,10 @@ from PySide6.QtCore import Qt, QTimer, QThread, Signal, QSettings
 from PySide6.QtGui import QFont, QCursor, QClipboard
 from PySide6.QtNetwork import QHostInfo, QNetworkInterface, QAbstractSocket
 
-from src.constants import PALETTE, APP_NAME, APP_VERSION, COMMON_PORTS
+from src.constants import (
+    PALETTE, THEMES, APP_NAME, APP_VERSION, COMMON_PORTS,
+    current_theme, set_theme,
+)
 from src.i18n import I18N, LANGUAGES, STRINGS, tr
 
 
@@ -32,6 +35,16 @@ def _new_hash(algo):
     non sécuritaires et évite un ValueError sur les systèmes FIPS.
     """
     return hashlib.new(algo.lower().replace("-", ""), usedforsecurity=False)
+
+
+def _text_on(color):
+    """Choix du texte lisible sur un fond (évite les valeurs figées par thème)."""
+    raw = color.lstrip("#")
+    if len(raw) != 6:
+        return "#ffffff"
+    r, g, b = (int(raw[i:i + 2], 16) for i in (0, 2, 4))
+    luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    return "#0f172a" if luminance > 0.62 else "#ffffff"
 
 
 # ════════════════════════════════════════════════════════════
@@ -227,6 +240,9 @@ class CyberSecApp(QMainWindow):
         self._settings = QSettings("CyberSecPartner", "CyberSecDashboard")
         saved_language = self._settings.value("language", "fr")
         I18N.set_language(saved_language if saved_language in LANGUAGES else "fr")
+        saved_theme = self._settings.value("theme", "dark")
+        set_theme(saved_theme if saved_theme in THEMES else "dark")
+        self.setStyleSheet(f"background-color:{PALETTE["bg"]};")
 
         self.pages = {}
         self._build_ui()
@@ -244,7 +260,9 @@ class CyberSecApp(QMainWindow):
     # ────────────────────────────────────────────────────────
     # HELPERS UI
     # ────────────────────────────────────────────────────────
-    def _label(self, text, size=10, bold=False, color=PALETTE["text"], family=PALETTE["font_family"]):
+    def _label(self, text, size=10, bold=False, color=None, family=None):
+        color = PALETTE["text"] if color is None else color
+        family = PALETTE["font_family"] if family is None else family
         lbl = QLabel(text)
         f = QFont(family, size)
         f.setBold(bold)
@@ -252,7 +270,9 @@ class CyberSecApp(QMainWindow):
         lbl.setStyleSheet(f"color:{color}; background: transparent;")
         return lbl
 
-    def _btn(self, text, slot, color=PALETTE["accent"], fg=PALETTE["bg"]):
+    def _btn(self, text, slot, color=None, fg=None):
+        color = PALETTE["accent"] if color is None else color
+        fg = _text_on(color) if fg is None else fg
         b = QPushButton(text)
         b.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         f = QFont(PALETTE["font_family"], 10)
@@ -277,7 +297,7 @@ class CyberSecApp(QMainWindow):
                 background-color: {PALETTE["border"]}; color: {PALETTE["text"]}; border: none;
                 padding: 7px 12px; border-radius: 4px;
             }}
-            QPushButton:hover {{ background-color: #444c56; }}
+            QPushButton:hover {{ background-color: {PALETTE["hover"]}; }}
             QPushButton:disabled {{ background-color: {PALETTE["sidebar"]}; color: {PALETTE["dim"]}; }}
         """)
         b.clicked.connect(slot)
@@ -472,6 +492,22 @@ class CyberSecApp(QMainWindow):
         lang_row.addWidget(self.lang_combo)
         sb.addLayout(lang_row)
 
+        # — Sélecteur de thème —
+        theme_row = QHBoxLayout()
+        theme_row.setContentsMargins(14, 4, 14, 2)
+        theme_row.addWidget(self._label(tr("nav.theme"), size=9, color=PALETTE["dim"]))
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItems([tr("theme.dark"), tr("theme.light")])
+        self.theme_combo.setCurrentIndex(("dark", "light").index(current_theme()))
+        self.theme_combo.setStyleSheet(f"""
+            QComboBox {{ background-color:{PALETTE["card"]}; color:{PALETTE["accent"]};
+                         border:1px solid {PALETTE["border"]}; border-radius:4px;
+                         padding:3px 6px; font-size:10px; }}
+        """)
+        self.theme_combo.currentIndexChanged.connect(self._on_theme_changed)
+        theme_row.addWidget(self.theme_combo)
+        sb.addLayout(theme_row)
+
         # — Bouton de capture (PNG de la fenêtre courante) —
         self.capture_btn = QPushButton(tr("nav.capture"))
         self.capture_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -527,6 +563,19 @@ class CyberSecApp(QMainWindow):
             return
         I18N.set_language(code)
         self._settings.setValue("language", code)
+        self._rebuild_ui(self.current_page or "dashboard")
+
+    def _on_theme_changed(self, index):
+        """Applique un thème et reconstruit l'interface avec la nouvelle palette."""
+        codes = ("dark", "light")
+        if not (0 <= index < len(codes)):
+            return
+        code = codes[index]
+        if code == current_theme():
+            return
+        set_theme(code)
+        self._settings.setValue("theme", code)
+        self.setStyleSheet(f"background-color:{PALETTE["bg"]};")
         self._rebuild_ui(self.current_page or "dashboard")
 
     def _capture_ui_state(self):
@@ -923,7 +972,7 @@ class CyberSecApp(QMainWindow):
         levels = [
             (25,  tr("strength.veryweak"), PALETTE["danger"]),
             (50,  tr("strength.weak"),      PALETTE["warning"]),
-            (70,  tr("strength.medium"),       "#ffdd00"),
+            (70,  tr("strength.medium"),       PALETTE["warning"]),
             (88,  tr("strength.strong"),        PALETTE["success"]),
             (101, tr("strength.verystrong"),   PALETTE["accent"]),
         ]
@@ -1119,7 +1168,7 @@ class CyberSecApp(QMainWindow):
         self.expected_hash.setStyleSheet(f"background-color:{PALETTE["sidebar"]}; color:{PALETTE["text"]}; border:none; padding:6px;")
         self.expected_hash.setFont(QFont(PALETTE["font_mono"], 10))
         vc.addWidget(self.expected_hash)
-        vc.addWidget(self._btn(tr("files.verify_button"), self._verify_hash, color=PALETTE["accent2"], fg=PALETTE["bg"]))
+        vc.addWidget(self._btn(tr("files.verify_button"), self._verify_hash, color=PALETTE["accent2"]))
         self.verify_lbl = self._label("", size=11, bold=True)
         vc.addWidget(self.verify_lbl)
 
@@ -1273,7 +1322,7 @@ class CyberSecApp(QMainWindow):
         cc.addLayout(pf)
 
         bf = QHBoxLayout()
-        self.scan_btn = self._btn(tr("scanner.launch"), self._start_scan, color=PALETTE["danger"], fg=PALETTE["text"])
+        self.scan_btn = self._btn(tr("scanner.launch"), self._start_scan, color=PALETTE["danger"])
         bf.addWidget(self.scan_btn)
         self.stop_btn = self._btn2(tr("common.stop"), self._stop_scan)
         self.stop_btn.setEnabled(False)

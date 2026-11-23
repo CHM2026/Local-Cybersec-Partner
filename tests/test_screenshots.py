@@ -31,3 +31,9 @@ def test_parse_args_supports_native_and_custom_output():
     assert args.native is True
     assert args.pages == "scanner"
     assert args.out == Path("captures")
+    assert args.theme == "both"
+
+
+def test_parse_args_theme_choice():
+    args = parse_args(["--theme", "light"])
+    assert args.theme == "light"

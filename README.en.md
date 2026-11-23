@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-29%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > Languages: [Français](README.md) · **English** · [العربية](README.ar.md)
 
@@ -11,7 +11,13 @@ Local dashboard bringing together several cybersecurity utilities, built with **
 
 ## Preview
 
-![Dashboard in English](docs/screenshots/dashboard-en.png)
+Dark (original theme):
+
+![Dashboard in English — dark](docs/screenshots/dashboard-en-dark.png)
+
+Light 2026:
+
+![Dashboard in English — light 2026](docs/screenshots/dashboard-en-light.png)
 
 > ⚠️ **Requirement: Python 3.15 or later.** The code uses the `lazy import` syntax (PEP 810) and nested f-strings (PEP 701). On Python ≤ 3.14, startup fails with a `SyntaxError`.
 
@@ -78,6 +84,15 @@ The **🌐 Language** selector at the bottom of the sidebar switches between **F
 
 To add or fix a translation, edit `src/i18n.py`: each key in the `STRINGS` dictionary holds the `(français, english, العربية)` triplet.
 
+## Themes
+
+Two palettes are available from the **🎨 Theme** selector in the sidebar:
+
+- **Dark**: the original cyber theme (`#0d1117` background, green/cyan accents).
+- **Light 2026**: a modern light palette (`#f6f8fb` background), blue/cyan accents and `Segoe UI` typography.
+
+The choice is saved (`QSettings`) and restored on launch. The **📸 Screenshot** button saves the current render as PNG.
+
 ## Security and scope
 
 - No password, file or hash is sent to a third-party service: everything is processed locally.
@@ -108,6 +123,7 @@ Tests run in Qt `offscreen` mode: no window is opened.
 
 ```bash
 python tools/screenshots.py
+python tools/screenshots.py --native --theme light
 python tools/screenshots.py --pages dashboard,scanner --out docs/screenshots
 ```
 
