@@ -238,23 +238,29 @@ La procédure générale ci-dessus reste valable ; seules les valeurs changent :
 Le paquet est distribué sous le nom **`local-cybersec-partner`** (nom libre sur
 PyPI au 23/11/2026). Le workflow `.github/workflows/publish-pypi.yml` construit
 le wheel **et** le sdist, valide les métadonnées avec `twine check`, puis les
-dépose sur PyPI via **Trusted Publishing (OIDC)** : aucun jeton à stocker dans
-les secrets GitHub.
+dépose sur PyPI avec un **token API** stocké dans le secret GitHub
+`PYPI_API_TOKEN`.
 
-### Configuration unique à faire sur PyPI
+### Configuration unique à faire
 
-1. Créer un compte sur <https://pypi.org/account/register/> et vérifier l'adresse
-   e-mail, puis activer la 2FA.
-2. Ouvrir <https://pypi.org/manage/account/publishing/> et ajouter un
-   *trusted publisher* avec exactement :
-   - **PyPI Project Name** : `local-cybersec-partner`
-   - **Owner** : `CHM2026`
-   - **Repository name** : `Local-Cybersec-Partner`
-   - **Workflow filename** : `publish-pypi.yml`
-   - **Environment name** : `pypi`
-3. Côté GitHub, l'environnement `pypi` se crée au premier lancement. Ajoutez-y un
-   approbateur dans *Settings → Environments* si vous voulez valider manuellement
-   chaque publication.
+1. Créer un compte sur <https://pypi.org/account/register/>, vérifier l'adresse
+   e-mail et activer la 2FA.
+2. Ouvrir <https://pypi.org/manage/account/token/> et créer un token :
+   - **pour la première publication**, portée **« Tous les projets »** — le projet
+     n'existe pas encore sur PyPI, un token limité à un projet serait refusé ;
+   - après la première publication, le remplacer par un token limité au projet
+     `local-cybersec-partner` (moins de privilèges).
+3. Copier le token (`pypi-...`) et l'ajouter dans le dépôt GitHub :
+   *Settings → Secrets and variables → Actions → New repository secret*,
+   nom exact **`PYPI_API_TOKEN`**. Le secret est masqué dans les logs.
+
+> **Pourquoi pas l'OIDC ?** Le *trusted publisher* a d'abord été essayé mais a
+> échoué avec `invalid-publisher` : le nom de dépôt saisi sur PyPI était en
+> minuscules (`local-cybersec-partner`) alors que GitHub envoie
+> `Local-Cybersec-Partner`, et PyPI compare ce champ **sensiblement à la casse**.
+> Pour utiliser l'OIDC plus tard (optionnel), supprimer l'ancienne fiche PyPI,
+> la recréer avec exactement `Local-Cybersec-Partner`, puis retirer `password:`
+> de l'étape de publication et ajouter `permissions: id-token: write` au job.
 
 ### Publier
 
@@ -271,8 +277,7 @@ Vérification : <https://pypi.org/project/local-cybersec-partner/> puis
 ⚠️ PyPI est immuable : une version publiée ne peut pas être remplacée. Toute
 correction après publication doit porter un nouveau numéro (`v1.1.1`, etc.).
 
-Alternative sans Trusted Publishing : créer un *API token* PyPI limité au projet,
-le stocker comme secret GitHub `PYPI_API_TOKEN` et remplacer la dernière étape du
-workflow par `pypa/gh-action-pypi-publish` avec
-`password: ${{ secrets.PYPI_API_TOKEN }}`.
+Le secret est vérifié par une étape dédiée avant la publication : s'il est
+absent, le workflow échoue avec un message explicite plutôt qu'au moment de
+l'envoi.
 

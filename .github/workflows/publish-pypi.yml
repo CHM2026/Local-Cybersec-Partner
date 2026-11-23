@@ -1,10 +1,10 @@
-# Publication sur PyPI via « Trusted Publishing » (OIDC) : aucun jeton à stocker.
-# À configurer une première fois sur https://pypi.org/manage/account/publishing/
-#   PyPI Project Name : local-cybersec-partner
-#   Owner             : CHM2026
-#   Repository name   : Local-Cybersec-Partner
-#   Workflow filename : publish-pypi.yml
-#   Environment name  : pypi
+# Publication sur PyPI avec un token API stocké dans le secret GitHub
+# `PYPI_API_TOKEN` (Settings → Secrets and variables → Actions).
+# Créer le token sur https://pypi.org/manage/account/token/ :
+#   pour la première publication, choisir la portée « Tous les projets »
+#   (le projet n'existe pas encore sur PyPI au moment du premier envoi).
+# Une fois le projet créé, remplacer par un token limité au projet
+# `local-cybersec-partner`.
 # Voir docs/RELEASE.md, section « Publication sur PyPI ».
 
 name: Publish to PyPI
@@ -26,11 +26,6 @@ jobs:
   publish:
     name: Construire et publier sur PyPI
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/local-cybersec-partner
-    permissions:
-      id-token: write  # obligatoire pour l'authentification OIDC avec PyPI
 
     steps:
       - name: Récupérer le dépôt
@@ -65,5 +60,18 @@ jobs:
       - name: Vérifier les métadonnées
         run: python -m twine check dist/*
 
+      - name: Vérifier le token PyPI
+        shell: bash
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -z "$PYPI_API_TOKEN" ]; then
+            echo "Secret PYPI_API_TOKEN absent : créer un token sur https://pypi.org/manage/account/token/ puis l'ajouter dans Settings > Secrets and variables > Actions." >&2
+            exit 1
+          fi
+          echo "Token PyPI présent."
+
       - name: Publier sur PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

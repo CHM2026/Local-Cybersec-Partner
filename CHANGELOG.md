@@ -7,9 +7,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 ## [Non publié]
 
 ### Ajouté
-- Workflow `publish-pypi.yml` : publication du wheel et du sdist sur PyPI via
-  *Trusted Publishing* (OIDC), sans jeton stocké. Métadonnées du paquet enrichies
-  (licence MIT, auteur, mots-clés, classifiers, URLs, description PyPI dédiée).
+- Workflow `publish-pypi.yml` : publication du wheel et du sdist sur PyPI avec
+  un token API stocké dans le secret GitHub `PYPI_API_TOKEN` (bascule après un
+  échec du *Trusted Publishing* dû à la casse du nom de dépôt). Métadonnées du
+  paquet enrichies (licence MIT, auteur, mots-clés, classifiers, URLs,
+  description PyPI dédiée).
 - `MANIFEST.in` et `docs/PYPI_README.md` : description lisible sur PyPI avec des
   liens et captures en URL absolues.
 
