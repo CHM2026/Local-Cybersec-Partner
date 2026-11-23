@@ -688,7 +688,7 @@ class CyberSecApp(QMainWindow):
             ("💪", tr("dashboard.module.strength"),      tr("dashboard.module.strength.desc"), "strength",  PALETTE["accent2"], 3, tr("priority.badge", num=3, level=tr("priority.medium")), PALETTE["warning"]),
             ("📄", tr("dashboard.module.files"),      tr("dashboard.module.files.desc"), "files",     PALETTE["warning"], 4, tr("priority.badge", num=4, level=tr("priority.medium")), PALETTE["warning"]),
             ("🔒", tr("dashboard.module.hashing"),        tr("dashboard.module.hashing.desc"),            "hashing",   PALETTE["purple"],  5, tr("priority.badge", num=5, level=tr("priority.low")),   PALETTE["dim"]),
-            ("⚙️", "Base64",         tr("dashboard.module.base64.desc"),                "base64",    PALETTE["success"], 6, tr("priority.badge", num=6, level=tr("priority.low")),   PALETTE["dim"]),
+            ("⚙️", tr("dashboard.module.base64"), tr("dashboard.module.base64.desc"),  "base64",    PALETTE["success"], 6, tr("priority.badge", num=6, level=tr("priority.low")),   PALETTE["dim"]),
         ]
         modules_par_priorite = sorted(modules, key=lambda m: m[5])
         for i, (icon, name, desc_txt, pid, color, priority, badge_txt, badge_color) in enumerate(modules_par_priorite):
@@ -1316,7 +1316,7 @@ class CyberSecApp(QMainWindow):
         self.scan_output.append(tr(
             "scanner.started",
             host=_esc(host), start=start, end=end, timeout=timeout,
-            date=datetime.now().strftime("%d/%m/%Y à %H:%M:%S")) + "\n" + "─" * 56)
+            date=datetime.now().strftime("%d/%m/%Y  %H:%M:%S")) + "\n" + "─" * 56)
 
         self._scan_worker = PortScanWorker(host, start, end, timeout)
         self._scan_worker.port_found.connect(self._on_port_found)
