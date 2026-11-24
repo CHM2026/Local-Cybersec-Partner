@@ -71,4 +71,4 @@ COMMON_PORTS = {
 }
 
 APP_NAME = "CyberSec Dashboard"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"

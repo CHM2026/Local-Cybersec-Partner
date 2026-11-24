@@ -1,7 +1,8 @@
 # Procédure de publication — v1.0.0
 
 Ce runbook prépare la diffusion de la version **1.0.0** de Local-Cybersec-Partner
-(la procédure spécifique à **v1.1.0** est résumée en section 7).
+(les procédures spécifiques à **v1.1.0** et **v1.1.1** sont résumées aux
+sections 7 et 9).
 Il ne crée **aucun tag automatiquement** : chaque commande est à exécuter
 volontairement, dans l’ordre indiqué.
 
@@ -287,4 +288,29 @@ correction après publication doit porter un nouveau numéro (`v1.1.1`, etc.).
 Le secret est vérifié par une étape dédiée avant la publication : s'il est
 absent, le workflow échoue avec un message explicite plutôt qu'au moment de
 l'envoi.
+
+## 9. Publication de v1.1.1
+
+Version de maintenance : traduction des dialogues Qt, finalisation de la
+publication PyPI et corrections documentaires. La procédure générale reste
+celle des sections 1 à 6 et 8.
+
+1. Vérifier `pyproject.toml` (`version = "1.1.1"`) et `src/constants.py`
+   (`APP_VERSION = "1.1.1"`), `installer/CyberSecDashboard.iss`
+   (`AppVersion = "1.1.1"`), puis `pytest` (**54 tests**) et la CI sur `main`.
+2. Vérifier que le badge Release des trois README est sur `release-v1.1.1` et
+   que le `[Non publié]` du `CHANGELOG.md` est vide (tout est passé dans
+   `[1.1.1]`).
+3. Publier le commit, créer le tag annoté `v1.1.1` et le pousser :
+   `git tag -a v1.1.1 -m "v1.1.1 — CyberSec Dashboard" && git push origin v1.1.1`.
+4. Créer la Release GitHub `v1.1.1` : titre `v1.1.1 — CyberSec Dashboard`,
+   description = section `[1.1.1]` du `CHANGELOG.md`, label **None**.
+5. Les workflows **`Release wheel`**, **`Build Windows executables`** et
+   **`Publish to PyPI`** se déclenchent automatiquement. Vérifier dans **Assets** :
+   `local_cybersec_partner-1.1.1-py3-none-any.whl`,
+   `CyberSecDashboard-1.1.1-portable.zip`,
+   `CyberSecDashboard-1.1.1-setup.exe` et `SHA256SUMS.txt`, puis la page
+   <https://pypi.org/project/local-cybersec-partner/> (version 1.1.1).
+6. Ne jamais déplacer `v1.0.0` ni `v1.1.0` : les artefacts des versions
+   publiées sont immuables.
 

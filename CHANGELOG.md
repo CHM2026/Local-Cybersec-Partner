@@ -6,6 +6,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 
 ## [Non publié]
 
+## [1.1.1] - 2026-11-24
+
+Version de maintenance : publication sur PyPI, traduction des dialogues natifs
+de Qt et corrections documentaires.
+
 ### Ajouté
 - Workflow `publish-pypi.yml` : publication du wheel et du sdist sur PyPI avec
   un token API stocké dans le secret GitHub `PYPI_API_TOKEN` (bascule après un
@@ -26,8 +31,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   régénérées avec la navigation à jour.
 - `docs/RELEASE.md` : nouvelle section « Publication sur PyPI ».
 - README FR/EN/AR : badge **Release** remplacé par un badge statique
-  (`release-v1.1.0`), le badge dynamique shields.io étant renvoyé en 504 par le
-  proxy d'images de GitHub. Procédure de mise à jour ajoutée au runbook.
+  (`release-vX.Y.Z`, mis à jour à chaque release), le badge dynamique shields.io
+  étant renvoyé en 504 par le proxy d'images de GitHub. Procédure ajoutée au
+  runbook.
 
 ## [1.1.0] - 2026-11-23
 

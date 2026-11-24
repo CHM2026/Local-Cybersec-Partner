@@ -4,7 +4,7 @@
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
 [![Tests](https://img.shields.io/badge/tests-54%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
-[![Release](https://img.shields.io/badge/release-v1.1.0-blue.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.1.1-blue.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
 [![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
 > اللغات: [Français](README.md) · [English](README.en.md) · **العربية**
@@ -234,5 +234,5 @@ pyproject.toml       البيانات الوصفية، نقطة الدخول، �
 ## الترخيص والنشر
 
 يُوزّع هذا المشروع بموجب [ترخيص MIT](LICENSE). سجل الإصدارات في
-[CHANGELOG.md](CHANGELOG.md)، وإجراء نشر الوسوم (`v1.0.0` و`v1.1.0`) في
+[CHANGELOG.md](CHANGELOG.md)، وإجراء نشر الوسوم (`v1.0.0` و`v1.1.0` و`v1.1.1`) في
 [docs/RELEASE.md](docs/RELEASE.md).
