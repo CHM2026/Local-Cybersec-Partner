@@ -231,7 +231,12 @@ La procédure générale ci-dessus reste valable ; seules les valeurs changent :
    `local_cybersec_partner-1.1.0-py3-none-any.whl`,
    `CyberSecDashboard-1.1.0-portable.zip`,
    `CyberSecDashboard-1.1.0-setup.exe` et `SHA256SUMS.txt`.
-5. Ne jamais déplacer `v1.0.0` : les correctifs ultérieurs iront dans `v1.1.1`.
+5. Mettre à jour le badge **Release** dans les trois README (FR/EN/AR) : le badge
+   est statique (`img.shields.io/badge/release-vX.Y.Z-blue.svg`) car le badge
+   dynamique `github/v/release/...` renvoie un 504 via le proxy d'images de
+   GitHub. Mettre aussi à jour le badge `tests-N passed` si le nombre de tests
+   change.
+6. Ne jamais déplacer `v1.0.0` : les correctifs ultérieurs iront dans `v1.1.1`.
 
 ## 8. Publication sur PyPI
 

@@ -20,6 +20,9 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   toutes les captures (dashboard et update, FR/EN/AR, sombre/clair) ont été
   régénérées avec la navigation à jour.
 - `docs/RELEASE.md` : nouvelle section « Publication sur PyPI ».
+- README FR/EN/AR : badge **Release** remplacé par un badge statique
+  (`release-v1.1.0`), le badge dynamique shields.io étant renvoyé en 504 par le
+  proxy d'images de GitHub. Procédure de mise à jour ajoutée au runbook.
 
 ## [1.1.0] - 2026-11-23
 
