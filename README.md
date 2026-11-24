@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-54%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Release](https://img.shields.io/badge/release-v1.1.0-blue.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
 [![Plateformes](https://img.shields.io/badge/plateformes-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
@@ -136,6 +136,7 @@ Le sélecteur **🌐 Langue** en bas de la sidebar permet de basculer entre **Fr
 - **Interface complète** : titres, libellés, boutons, messages, infobulles et saisies du journal sont traduits.
 - **Journal rétroactif** : les entrées sont stockées sous forme de clés avec leurs paramètres ; elles sont retraduites à l'affichage lors d'un changement de langue, y compris dans l'export texte.
 - **RTL automatique** : sélectionner l'arabe inverse la disposition de l'interface (`RightToLeft`) et les alignements (`text-align: start`).
+- **Dialogues Qt traduits** : les chaînes propres à Qt (boutons OK/Annuler, boîtes de dialogue de fichiers) utilisent les catalogues `qtbase_*.qm` installés via `QTranslator` depuis le chemin de traduction par défaut.
 - **Préservation de l'état** : les saisies en cours sont conservées et les résultats recalculés sans créer de nouvelle entrée de journal.
 
 Pour ajouter ou corriger une traduction, éditez `src/i18n.py` : chaque clé du dictionnaire `STRINGS` contient le triplet `(français, english, العربية)`.

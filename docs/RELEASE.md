@@ -222,7 +222,7 @@ Le tag `v1.0.0` pointe, lui, sur l’arbre propre avec les six captures anonymis
 La procédure générale ci-dessus reste valable ; seules les valeurs changent :
 
 1. Vérifier `pyproject.toml` (`version = "1.1.0"`) et `src/constants.py`
-   (`APP_VERSION = "1.1.0"`), puis `pytest` (**51 tests**) et la CI sur `main`.
+   (`APP_VERSION = "1.1.0"`), puis `pytest` (**54 tests**) et la CI sur `main`.
 2. Publier le commit, créer le tag annoté `v1.1.0` et le pousser.
 3. Créer la Release GitHub `v1.1.0` : titre `v1.1.0 — CyberSec Dashboard`,
    description = section `[1.1.0]` du `CHANGELOG.md`, label **None**.

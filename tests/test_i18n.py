@@ -1,10 +1,10 @@
 """Tests du module multilingue (français / anglais / arabe) et du RTL."""
 
 import pytest
-from PySide6.QtCore import Qt, QSettings
+from PySide6.QtCore import QCoreApplication, Qt, QSettings
 from PySide6.QtWidgets import QApplication
 
-from src.i18n import I18N, LANGUAGES, STRINGS, tr
+from src.i18n import I18N, LANGUAGES, STRINGS, install_qt_translator, tr
 
 
 @pytest.fixture(autouse=True)
@@ -91,3 +91,26 @@ def test_rebuild_does_not_duplicate_logs(window):
     window.lang_combo.setCurrentIndex(1)
     window.lang_combo.setCurrentIndex(2)
     assert len(window.log_entries) == 1
+
+
+def test_qt_translator_arabic_from_default_path(qapp):
+    """Les catalogues Qt sont chargés depuis QLibraryInfo.TranslationsPath."""
+    try:
+        assert install_qt_translator("ar") is True
+        assert QCoreApplication.translate("QDialogButtonBox", "OK") != "OK"
+    finally:
+        install_qt_translator("fr")
+
+
+def test_qt_translator_english_removes_previous(qapp):
+    install_qt_translator("ar")
+    assert install_qt_translator("en") is False
+    assert QCoreApplication.translate("QDialogButtonBox", "OK") == "OK"
+
+
+def test_language_change_installs_qt_translator(window):
+    try:
+        window.lang_combo.setCurrentIndex(2)  # ar
+        assert QCoreApplication.translate("QDialogButtonBox", "OK") != "OK"
+    finally:
+        window.lang_combo.setCurrentIndex(0)  # fr

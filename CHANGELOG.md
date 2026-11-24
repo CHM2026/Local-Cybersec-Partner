@@ -14,6 +14,11 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
   description PyPI dédiée).
 - `MANIFEST.in` et `docs/PYPI_README.md` : description lisible sur PyPI avec des
   liens et captures en URL absolues.
+- Traduction des chaînes natives de Qt : `install_qt_translator()` charge
+  `qtbase_<langue>.qm` / `qt_<langue>.qm` depuis
+  `QLibraryInfo.LibraryPath.TranslationsPath` et réinstalle le traducteur à
+  chaque changement de langue. Les boutons et dialogues Qt suivent désormais
+  le français et l'arabe (l'anglais retire simplement le traducteur).
 
 ### Modifié
 - README FR/EN/AR : les aperçus montrent désormais la page **🆕 Mise à jour** ;

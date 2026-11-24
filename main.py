@@ -26,7 +26,7 @@ from src.constants import (
     PALETTE, THEMES, APP_NAME, APP_VERSION, COMMON_PORTS,
     current_theme, set_theme,
 )
-from src.i18n import I18N, LANGUAGES, STRINGS, tr
+from src.i18n import I18N, LANGUAGES, STRINGS, install_qt_translator, tr
 from src.runtime import (
     app_settings, detect_distribution, distribution_i18n_key,
     executable_dir, setting_flag,
@@ -326,6 +326,7 @@ class CyberSecApp(QMainWindow):
         self._settings = app_settings()
         saved_language = self._settings.value("language", "fr")
         I18N.set_language(saved_language if saved_language in LANGUAGES else "fr")
+        install_qt_translator(I18N.language)
         saved_theme = self._settings.value("theme", "dark")
         set_theme(saved_theme if saved_theme in THEMES else "dark")
         apply_global_style(QApplication.instance())
@@ -661,6 +662,7 @@ class CyberSecApp(QMainWindow):
         if code == I18N.language:
             return
         I18N.set_language(code)
+        install_qt_translator(code)
         self._settings.setValue("language", code)
         self._rebuild_ui(self.current_page or "dashboard")
 

@@ -3,7 +3,7 @@
 [![Python app](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6%20%E2%89%A5%206.12-green.svg)](https://pypi.org/project/PySide6/)
-[![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
+[![Tests](https://img.shields.io/badge/tests-54%20passed-brightgreen.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 [![Release](https://img.shields.io/badge/release-v1.1.0-blue.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/releases/latest)
 [![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/CHM2026/Local-Cybersec-Partner/actions/workflows/python-app.yml)
 
@@ -136,6 +136,7 @@ The **🌐 Language** selector at the bottom of the sidebar switches between **F
 - **Complete interface**: titles, labels, buttons, messages, tooltips and log entries are translated.
 - **Retroactive log**: entries are stored as keys with their parameters; they are re-translated on display when the language changes, including in the text export.
 - **Automatic RTL**: selecting Arabic reverses the layout (`RightToLeft`) and alignments (`text-align: start`).
+- **Qt dialogs translated**: Qt's own strings (OK/Cancel buttons, file dialogs) use the `qtbase_*.qm` catalogs installed via `QTranslator` from Qt's default translations path.
 - **State preservation**: in-progress inputs are kept and results are recalculated without creating a new log entry.
 
 To add or fix a translation, edit `src/i18n.py`: each key in the `STRINGS` dictionary holds the `(français, english, العربية)` triplet.

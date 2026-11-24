@@ -7,7 +7,13 @@ de langue.
 
 L'instance globale :data:`I18N` est la source de vérité ; la fonction :func:`tr`
 est le raccourci utilisé par l'application.
+
+En plus de ce dictionnaire, :func:`install_qt_translator` applique les catalogues
+Qt embarqués avec PySide6 afin que les textes propres à Qt (boutons « OK » /
+« Annuler », boîtes de dialogue de fichiers, etc.) suivent aussi la langue.
 """
+
+from PySide6.QtCore import QCoreApplication, QLibraryInfo, QTranslator
 
 LANGUAGES = {"fr": "Français", "en": "English", "ar": "العربية"}
 LANG_INDEX = {"fr": 0, "en": 1, "ar": 2}
@@ -423,3 +429,44 @@ I18N = I18n()
 def tr(key, **kwargs):
     """Raccourci vers :meth:`I18n.tr`."""
     return I18N.tr(key, **kwargs)
+
+
+# Catalogues Qt fournis par PySide6. ``qtbase`` couvre Qt Widgets (boîtes de
+# dialogue, boutons standard) ; ``qt`` regroupe les autres modules Qt.
+_QT_CATALOGS = ("qtbase_{lang}", "qt_{lang}")
+_QT_TRANSLATORS: list[QTranslator] = []
+
+
+def install_qt_translator(language):
+    """Applique les traductions Qt pour ``language`` et renvoie ``True`` si
+    au moins un catalogue a été chargé.
+
+    Les fichiers ``.qm`` sont lus depuis ``QLibraryInfo.TranslationsPath``, le
+    chemin par défaut de Qt (également présent dans l'exécutable PyInstaller).
+    L'anglais étant la langue native de Qt, les traducteurs précédents sont
+    simplement retirés. Les objets ``QTranslator`` doivent rester vivants tant
+    qu'ils sont installés : ils sont donc conservés dans ``_QT_TRANSLATORS``.
+
+    Sans application Qt active (ex. : import dans un test unitaire), la
+    fonction ne fait rien et renvoie ``False``.
+    """
+    app = QCoreApplication.instance()
+    if app is None:
+        return False
+
+    for old in _QT_TRANSLATORS:
+        app.removeTranslator(old)
+    _QT_TRANSLATORS.clear()
+
+    if language == "en":
+        return False
+
+    translations_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+    loaded = False
+    for catalog in _QT_CATALOGS:
+        translator = QTranslator(app)
+        if translator.load(catalog.format(lang=language), translations_dir):
+            app.installTranslator(translator)
+            _QT_TRANSLATORS.append(translator)
+            loaded = True
+    return loaded
