@@ -6,6 +6,12 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et
 
 ## [Non publié]
 
+### Corrigé
+- Release `v1.1.1` marquée comme « latest » dans GitHub : le vérificateur de
+  mises à jour des versions `v1.1.0` interroge `releases/latest`, qui renvoyait
+  encore `v1.1.0` et laissait le bouton de téléchargement désactivé. Le runbook
+  (`docs/RELEASE.md`) vérifie désormais ce point après chaque publication.
+
 ## [1.1.1] - 2026-11-24
 
 Version de maintenance : publication sur PyPI, traduction des dialogues natifs

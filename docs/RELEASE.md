@@ -151,6 +151,14 @@ Alternative équivalente : `git push --follow-tags origin main`.
 3. Description : copier la section `[1.0.0]` de `CHANGELOG.md`.
 4. Label : **None** (le choix *Pre-release* est réservé aux bêta / RC).
 5. Cliquer sur **Publish release**.
+6. **Vérifier « Set as the latest release »** sur la Release publiée : le
+   vérificateur de mises à jour de l'application interroge
+   `GET /repos/CHM2026/Local-Cybersec-Partner/releases/latest`. Une Release
+   publiée depuis un brouillon peut rester en « plus ancienne » (cas vécu avec
+   `v1.1.1` : le bouton de téléchargement restait désactivé dans `v1.1.0`).
+   Contrôle rapide : <https://api.github.com/repos/CHM2026/Local-Cybersec-Partner/releases/latest>
+   doit afficher `"tag_name": "vX.Y.Z"`. Sinon, cocher l'option dans l'interface
+   GitHub ou envoyer `PATCH /releases/{id}` avec `{"make_latest":"true"}`.
 
 Le wheel est ajouté **automatiquement** par le workflow `Release wheel` quelques
 secondes après la publication : il n’y a pas d’attachement manuel à faire.
@@ -305,6 +313,8 @@ celle des sections 1 à 6 et 8.
    `git tag -a v1.1.1 -m "v1.1.1 — CyberSec Dashboard" && git push origin v1.1.1`.
 4. Créer la Release GitHub `v1.1.1` : titre `v1.1.1 — CyberSec Dashboard`,
    description = section `[1.1.1]` du `CHANGELOG.md`, label **None**.
+   Vérifier que `releases/latest` renvoie bien `v1.1.1` (voir §4.7) : sans cela,
+   les installations `v1.1.0` ne voient pas la mise à jour.
 5. Les workflows **`Release wheel`**, **`Build Windows executables`** et
    **`Publish to PyPI`** se déclenchent automatiquement. Vérifier dans **Assets** :
    `local_cybersec_partner-1.1.1-py3-none-any.whl`,
